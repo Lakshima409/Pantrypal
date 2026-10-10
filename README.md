@@ -1,110 +1,126 @@
-# 🍲 PantryPal — Recipe Recommendation, Personalized Diet & Shopping List System
+🍽️ PantryPal – AI Recipe Recommendation & Meal Planning System
 
-AI-powered food-management platform: **profile → dietary preferences → pantry →
-recipes → hybrid AI recommendation → 7-day meal plan → pantry-aware shopping
-list → interactions → better personalization.**
+PantryPal is an AI-powered recipe recommendation and meal planning system designed to make everyday cooking easier. The idea behind this project is simple: instead of wondering what to cook every day, users can discover recipes based on the ingredients they already have, their dietary preferences, and their meal planning needs.
 
-> Core question answered: *“Considering what I have, what I can eat, what I want
-> nutritionally, and what I like — what should I cook? What am I missing? How do
-> I organize my week?”*
+I developed this project as part of my Software Engineering degree, combining web development, database management, and machine learning to create a practical solution to a common everyday problem.
 
-## Architecture (blueprint §2, §27)
+✨ What Can PantryPal Do?
 
-```text
-React (client/)  →  Node/Express (server/)  →  MySQL (recipe_db)
-                          │
-                          ├→ Flask recommender   :5001  (TF-IDF + cosine + hybrid scoring)
-                          └→ Flask diet-planner  :5002  (7-day × 4-slot meal plans)
-```
+🥗 Recipe Recommendations – Discover recipes based on available ingredients and personal preferences.
 
-React **never** talks to Flask or MySQL directly; Flask **never** does auth.
-The Node layer degrades gracefully: if a Flask service is offline it uses a
-local pantry-overlap / heuristic fallback so every endpoint keeps answering.
+🧺 Pantry Management – Keep track of ingredients you have and find ways to use them.
 
-## Stack
+📅 Meal Planning – Plan meals according to your daily needs and dietary preferences.
 
-| Layer | Technology |
-|---|---|
-| Frontend | React 19 + Vite + Tailwind 4 + react-router 7 |
-| Backend | Node.js + Express, JWT + bcryptjs, mysql2 pool |
-| AI services | Python 3.12, Flask, scikit-learn, NumPy, PyMySQL |
-| Database | MySQL 8.4 — `database/schema.sql` + `database/migrations/` |
-| Tests | `node --test` (Jest-style) + PyTest |
-| Deploy | Docker Compose (authored per §66; not run on original machine) |
+🛒 Shopping Lists – Organize the ingredients you need for upcoming meals.
 
-## Repository layout
+🥦 Dietary Preferences – Find meal options that better match your dietary requirements.
 
-```text
-PantryPal/
-├── client/                  # React SPA (pages, contexts, Tailwind styles)
-├── server/                  # Express REST API  (see server/README.md)
-│   ├── e2e-check.js         # full register→pantry→plan→shopping→AI flow
-│   └── ai-path-check.js     # proves Node serves Flask hybrid scores
-├── ai-services/
-│   ├── recommender/         # :5001  /recommend  (scoring.py = §24 weights)
-│   │   ├── model/train_tfidf.py
-│   │   └── tests/test_scoring.py
-│   └── diet-planner/        # :5002  /mealplan   (tests/test_planner.py)
-├── database/
-│   ├── schema.sql           # users, pantry, recipes, nutrition, tags, …
-│   ├── migrations/          # diet_plan, reset tokens, expiry_date
-│   └── seed.sql             # demo login: demo@pantrypal.local / Demo1234!
-├── docker-compose.yml
-└── .env.example → see server/.env.example
-```
+👤 User Accounts – Manage personal preferences and access personalized features.
 
-## Run locally
+🤖 AI-Powered Suggestions – Use recommendation techniques to help users find suitable recipes.
 
-**Prereqs:** Node 20+, Python 3.12, MySQL 8.x.
+🛠️ Technologies Used
 
-```bash
-# 1. Database
-mysql -u root -p -e "CREATE DATABASE recipe_db CHARACTER SET utf8mb4;"
-mysql -u root -p recipe_db < database/schema.sql
-mysql -u root -p recipe_db < database/migrations/add_diet_plan.sql
-mysql -u root -p recipe_db < database/migrations/add_expiry_date.sql
-mysql -u root -p recipe_db < database/seed.sql
+PantryPal was built using a combination of frontend, backend, database, and machine learning technologies.
 
-# 2. Backend  (copy server/.env.example → server/.env and set DB_PASS/JWT_SECRET)
-cd server && npm install && npm run dev        # → http://localhost:5000
+Frontend: React, Vite, Tailwind CSS
 
-# 3. AI services (same .env is read automatically)
-cd ../ai-services/recommender && pip install -r requirements.txt && python app.py   # → :5001
-cd ../diet-planner           && pip install -r requirements.txt && python app.py    # → :5002
+Backend: Node.js, Express.js
 
-# 4. Frontend
-cd ../../client && npm install && npm run dev  # → http://localhost:5173
-```
+Database: MySQL
 
-## Tests (blueprint §61)
+Machine Learning: Python, Flask, TF-IDF, cosine similarity
 
-```bash
-cd server            && npm test        # units: shopping math, auth/JWT  (9 tests)
-cd ai-services/recommender  && python -m pytest tests -q   # score components (8)
-cd ai-services/diet-planner && python -m pytest tests -q   # week plans, allergens (5)
-cd server && node e2e-check.js          # live E2E against MySQL + all services
-cd server && node ai-path-check.js      # asserts Node → Flask hybrid scores
-```
+API: REST APIs
 
-## Key behaviors implemented
+Development Tools: Git, GitHub, Docker
 
-* **Pantry-aware shopping list (§30-31)** — `missing = max(0, required − pantry)`
-  with unit normalisation (g/kg, ml/l, tbsp…); fully-stocked ingredients never
-  appear; duplicates merge; grouped by category.
-* **Hybrid recommendation (§18-24)** — TF-IDF cosine content similarity +
-  pantry match + dietary hard-filter + nutrition proximity + preference affinity
-  + expiry priority + user-user CF; cold start falls back to pantry/diet
-  (§23). Weights live in `ai-services/recommender/scoring.py` (§24-style, tunable).
-* **7-day meal plan (§28)** — breakfast/lunch/dinner/snack slots, calorie-target
-  aware, allergen-filtered, no duplicate recipes within the week, weekly
-  nutrition summary on `GET /api/mealplan`.
-* **Auth (§4-7)** — register/login/JWT cookie + Bearer, bcrypt, forgot/reset
-  password, strong-password policy, `JWT_SECRET` enforced in production (§54).
-* **Expiry-aware pantry (§10-11, §21)** — `expiry_date` column, near-expiry
-  items boost recipes that use them.
+🧠 How the Recommendation System Works
 
-## Not yet built (report “future/advanced”, Phase C+)
+One of the main parts of PantryPal is its recipe recommendation system.
 
-NLP search (§37), image-based ingredient recognition (§13), ratings/comments
-UI, Spoonacular import cache (§52), grocery-partner integration, notifications,
-role-based admin, WCAG audit (§56), CI.
+The system uses techniques such as TF-IDF and cosine similarity to compare recipe information and identify recipes that are similar or relevant to a user's available ingredients and preferences.
+
+The project also explores additional recommendation approaches, including collaborative filtering and neural embeddings, to support more personalized recommendations.
+
+The goal is to make recipe discovery more useful than simply browsing through a list of recipes.
+
+🎯 Why I Built This Project
+
+I wanted to build something that goes beyond a basic CRUD application and addresses a real-world problem.
+
+Deciding what to cook can be difficult when you have limited ingredients, specific dietary needs, or a busy schedule. PantryPal brings recipe discovery, pantry management, and meal planning together in one place.
+
+Working on this project also gave me the opportunity to explore how machine learning can be integrated into a full-stack web application.
+
+🚀 Getting Started
+
+To run PantryPal locally, you will need Node.js, Python, and MySQL installed on your computer. Docker can also be used if you prefer a containerized setup.
+
+1. Clone the repository
+
+git clone https://github.com/Lakshima409/Pantrypal.git
+cd Pantrypal
+
+2. Install the frontend and backend dependencies
+
+Navigate to the relevant frontend and backend directories and install their dependencies using npm install.
+
+3. Configure the database
+
+Set up your MySQL database and configure the required database connection settings using the environment variables described in the project configuration.
+
+4. Configure the Python recommendation service
+
+Install the Python dependencies listed in the relevant requirements.txt file and configure the Flask service as required.
+
+5. Start the application
+
+Start the frontend, backend, and recommendation service using the commands specified in their respective project directories.
+
+Note: The exact setup commands and environment variables may vary depending on the project configuration. Check the relevant configuration files before running the application.
+
+🌱 What I Learned
+
+Building PantryPal helped me strengthen my understanding of:
+
+Developing full-stack applications with React and Node.js.
+
+Designing and working with a MySQL database.
+
+Connecting frontend components to backend REST APIs.
+
+Integrating a Python-based machine learning service into a web application.
+
+Applying text-processing and similarity techniques to recipe recommendations.
+
+Organizing application components and managing a project with Git and GitHub.
+
+Thinking about practical user needs when designing software.
+
+🔮 Future Improvements
+
+There is still room to expand PantryPal with features such as:
+
+More advanced personalized recommendations.
+
+Improved nutrition information and dietary filtering.
+
+Better pantry tracking and ingredient expiry reminders.
+
+More flexible weekly meal plans.
+
+Recipe feedback to help improve future recommendations.
+
+👩‍💻 About the Project
+
+PantryPal is a Software Engineering degree project that reflects my interest in full-stack development, artificial intelligence, and building useful applications.
+
+I enjoyed exploring how different technologies can work together to solve an everyday problem, and this project gave me valuable hands-on experience with both web development and machine learning.
+
+Developed by: Lakshima Madurangi
+
+GitHub: @Lakshima409
+
+Making everyday meal planning a little easier, one recipe at a time. 🍲
