@@ -9,7 +9,7 @@ function RegisterStep2() {
   const storedEmail = (() => {
     try { return sessionStorage.getItem('pp_register_email') || ''; } catch { return ''; }
   })();
-  const email = location.state?.email || storedEmail || 'User3@gmail.com';
+  const email = location.state?.email || storedEmail || '';
 
   const [fullName, setFullName] = useState('');
   const [password, setPassword] = useState('');

@@ -1,8 +1,0 @@
-﻿mysql.exe : mysql: [Warning] Using a password on the command line interface can be insecure.
-At line:1 char:279
-+ ... LL OR image_url='')) FROM recipe_db.recipes;"); & $my @a 2>&1 | Out-F ...
-+                                                     ~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (mysql: [Warning...an be insecure.:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-total=10000 empty_title=0 empty_img=0

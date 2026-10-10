@@ -34,7 +34,7 @@ function RegisterStep3() {
       };
     } catch { return { email: '', name: '', password: '' }; }
   })();
-  const email = location.state?.email || stored.email || 'User3@gmail.com';
+  const email = location.state?.email || stored.email || '';
   const fullName = location.state?.fullName || stored.name || '';
   const password = location.state?.password || stored.password || '';
   const [diet, setDiet] = useState('');

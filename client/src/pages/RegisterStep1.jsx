@@ -5,7 +5,7 @@ import '../styles/auth.css';
 
 function RegisterStep1() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('User3@gmail.com');
+  const [email, setEmail] = useState('');
   const [error, setError] = useState('');
 
   const handleContinue = (e) => {

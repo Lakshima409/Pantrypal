@@ -1,2 +1,0 @@
-﻿No old backend node process found
-Started backend with node --watch
