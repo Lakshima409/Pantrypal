@@ -1,0 +1,51 @@
+/* PantryPal final theme — matched to Interface screenshots */
+:root {
+  --pp-cream: #fffaf3;
+  --pp-cream-2: #fffaef;
+  --pp-brown-900: #240d04;
+  --pp-brown-800: #2f1408;
+  --pp-brown-card: #5f2708;
+  --pp-pill: #7c2d0e;
+  --pp-coral: #ff6b4a;
+  --pp-coral-dark: #f25a38;
+  --pp-ink: #1c0f08;
+}
+.pp-page { background: var(--pp-cream); min-height: 100vh; font-family: "Segoe UI", system-ui, -apple-system, sans-serif; color: var(--pp-ink); }
+.pp-serif { font-family: Georgia, "Times New Roman", serif; }
+.pp-hero { position: relative; width: 100%; overflow: hidden; background: #140905; }
+.pp-hero img.pp-hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.pp-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(rgba(10,5,2,.62), rgba(10,5,2,.62)); }
+.pp-hero-inner { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 48px 24px 88px; text-align: center; color: #fff; }
+.pp-hero h1 { font-family: Georgia, serif; font-weight: 800; font-size: 52px; line-height: 1.12; margin: 0; letter-spacing: -0.5px; }
+.pp-hero h1 .coral { color: var(--pp-coral); }
+.pp-hero p { margin: 18px auto 0; max-width: 720px; font-size: 16px; font-weight: 600; line-height: 1.7; color: #f5e9dc; }
+.pp-btn-coral { display: inline-flex; align-items: center; gap: 8px; background: var(--pp-coral); color: #fff; border: none; border-radius: 8px; padding: 12px 22px; font-weight: 700; font-size: 14px; cursor: pointer; text-decoration: none; box-shadow: 0 8px 22px rgba(255,107,74,.35); }
+.pp-btn-coral:hover { background: var(--pp-coral-dark); }
+.pp-title-rule { display: flex; align-items: center; gap: 18px; justify-content: center; margin: 54px auto 34px; max-width: 1100px; padding: 0 24px; }
+.pp-title-rule::before, .pp-title-rule::after { content: ""; height: 1px; background: #c9c2b4; flex: 1; }
+.pp-title-rule span.tick { width: 1px; height: 18px; background: #c9c2b4; display: none; }
+.pp-title-rule h2 { font-family: Georgia, serif; font-size: 18px; font-weight: 800; margin: 0; white-space: nowrap; color: #111; }
+.pp-card-food { position: relative; border-radius: 10px; overflow: hidden; background: #ddd; min-height: 300px; }
+.pp-card-food img { width: 100%; height: 100%; object-fit: cover; display: block; aspect-ratio: 3/3.4; }
+.pp-card-food .lbl { position: absolute; left: 0; right: 0; bottom: 64px; text-align: center; color: #fff; font-family: Georgia, serif; font-weight: 700; font-size: 22px; text-shadow: 0 2px 10px rgba(0,0,0,.6); }
+.pp-card-food .view { position: absolute; left: 14px; right: 14px; bottom: 14px; background: rgba(0,0,0,.92); color: var(--pp-coral); border: 1px solid var(--pp-coral); border-radius: 6px; padding: 10px; font-size: 13px; font-weight: 600; text-align: center; cursor: pointer; }
+.pp-card-food .heart { position: absolute; top: 12px; right: 12px; width: 30px; height: 30px; border-radius: 99px; display: flex; align-items: center; justify-content: center; color: #fff; background: rgba(0,0,0,.35); border: none; cursor: pointer; font-size: 16px; }
+/* footer */
+.pp-footer { background: var(--pp-brown-900); color: #f3e7d8; margin-top: 70px; }
+.pp-footer-inner { max-width: 1200px; margin: 0 auto; padding: 48px 28px 18px; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 30px; }
+.pp-footer h3 { font-family: Georgia, serif; font-size: 34px; margin: 0 0 12px; color: #fff; }
+.pp-footer .brand { display: flex; align-items: center; gap: 8px; color: var(--pp-coral); font-weight: 800; font-size: 20px; margin: 6px 0 14px; }
+.pp-footer p.desc { font-size: 14.5px; line-height: 1.9; font-weight: 600; max-width: 420px; }
+.pp-subrow { display: flex; gap: 10px; margin-top: 18px; }
+.pp-subrow input { flex: 1; max-width: 300px; height: 42px; border-radius: 8px; border: none; padding: 0 14px; font-size: 13px; }
+.pp-subrow button { height: 42px; padding: 0 18px; border-radius: 8px; border: none; background: var(--pp-coral); color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; }
+.pp-footer h4 { font-size: 14px; margin: 6px 0 16px; color: #fff; }
+.pp-footer a { display: block; color: #e9dccc; text-decoration: none; font-size: 13.5px; font-weight: 700; margin-bottom: 14px; }
+.pp-footer a.active { color: var(--pp-coral); }
+.pp-social { display: flex; gap: 12px; }
+.pp-social span { width: 38px; height: 38px; border-radius: 99px; border: 1px solid var(--pp-coral); color: var(--pp-coral); display: flex; align-items: center; justify-content: center; font-size: 15px; }
+.pp-copy { border-top: 1px solid rgba(255,255,255,.18); text-align: center; font-size: 12px; padding: 16px; color: #d8c8b8; margin-top: 10px; }
+@media (max-width: 900px) {
+  .pp-hero h1 { font-size: 34px; }
+  .pp-footer-inner { grid-template-columns: 1fr; }
+}

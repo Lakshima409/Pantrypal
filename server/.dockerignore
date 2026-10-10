@@ -1,0 +1,5 @@
+# PantryPal API server
+node_modules
+.env
+Dockerfile
+.dockerignore

@@ -1,0 +1,87 @@
+/* Shared PantryPal auth styling — pixel matched to Login / Register mockups */
+.auth-bg {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 24px 5.5vw 24px 20px;
+  background:
+    linear-gradient(rgba(24, 12, 0, 0.48), rgba(24, 12, 0, 0.48)),
+    url('/assets/background.jpg') center / cover no-repeat #3b2a1e;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+.auth-card {
+  background: #fffdf0;
+  color: #111;
+  text-align: center;
+  width: 420px;
+  max-width: 100%;
+  min-height: 0;
+  padding: 32px 40px 30px;
+  border-radius: 20px;
+  box-shadow: 0 24px 70px rgba(0,0,0,0.35);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+.auth-card--narrow { width: 410px; min-height: 0; padding: 28px 32px 30px; border-radius: 18px; max-height: none; }
+.auth-logo {
+  width: 96px; height: 94px; margin: 0 auto 16px;
+  background: #fff; border-radius: 16px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+.auth-card h1 { margin: 0; font-weight: 700; color: #000; font-size: 26px; letter-spacing: -0.2px; }
+.auth-sub { margin: 16px 0 22px; font-size: 16px; color: #111; }
+.auth-sub--sm { font-size: 14px; margin: 14px 0 16px; }
+.auth-card input[type="text"],
+.auth-card input[type="email"],
+.auth-card input[type="password"],
+.auth-card input[type="number"] {
+  width: 100%; height: 46px; border-radius: 10px; padding: 0 16px;
+  font-size: 15.5px; margin-bottom: 16px; background: #e9e6e3;
+  border: none; outline: none; color: #111; font-family: inherit;
+}
+.auth-card--narrow input[type="text"],
+.auth-card--narrow input[type="email"],
+.auth-card--narrow input[type="password"],
+.auth-card--narrow input[type="number"] { height: 42px; font-size: 14px; margin-bottom: 14px; border-radius: 8px; padding: 0 14px; }
+.auth-card input::placeholder { color: #7a7a7a; }
+.auth-card input:focus { box-shadow: 0 0 0 2px #ff7061; background: #efedea; }
+.auth-btn {
+  width: 100%; height: 50px; border-radius: 10px; font-size: 17px;
+  background: #ff7061; color: #fff; border: none; font-weight: 700; cursor: pointer;
+  transition: background .15s ease, transform .05s ease;
+}
+.auth-card--narrow .auth-btn { height: 46px; font-size: 15px; border-radius: 8px; }
+.auth-btn:hover { background: #f55f4f; }
+.auth-btn:disabled { opacity: .7; cursor: default; }
+.auth-link-red { color: #e60000; font-weight: 700; text-decoration: none; }
+.auth-link-red:hover { text-decoration: underline; }
+.auth-forgot { display: block; margin-top: 28px; font-size: 14px; }
+.auth-switch { margin-top: 28px; font-size: 14px; margin-bottom: 0; }
+.auth-card--narrow .auth-switch { margin-top: 22px; font-size: 13px; }
+.auth-err { background: #fde2e2; color: #b91c1c; padding: 9px 12px; border-radius: 8px; margin-bottom: 14px; font-size: 13.5px; }
+.auth-steps { display: flex; gap: 8px; justify-content: center; margin: 0 0 18px; }
+.auth-steps span { width: 34px; height: 6px; border-radius: 99px; background: #e5dcc8; }
+.auth-steps span.active { background: #ff7061; }
+.profile-wrap {
+  min-height: 100vh; width: 100%;
+  display: flex; align-items: flex-start; justify-content: flex-end;
+  padding: 0 4.5vw 0 20px;
+  background:
+    linear-gradient(rgba(24,12,0,0.48), rgba(24,12,0,0.48)),
+    url('/assets/background.jpg') center / cover no-repeat #3b2a1e;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+.profile-card {
+  background: #fffdf0; color: #111;
+  width: 410px; max-width: 100%; min-height: 100vh; max-height: 100vh; overflow-y: auto;
+  padding: 0 34px 28px; text-align: left;
+}
+@media (max-width: 700px) {
+  .auth-bg { justify-content: center; padding: 16px; }
+  .auth-card { padding-left: 24px; padding-right: 24px; min-height: 0; }
+  .profile-wrap { justify-content: center; padding: 0; }
+  .profile-card { width: 100%; max-height: none; }
+}

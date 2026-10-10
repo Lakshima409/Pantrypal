@@ -1,0 +1,24 @@
+# Secrets & env
+.env
+.env.local
+*.local
+
+# Node
+node_modules/
+dist/
+npm-debug.log*
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+
+# Trained artifacts (regenerate with ai-services/recommender/model/train_tfidf.py)
+*.pkl
+
+# Editors / OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

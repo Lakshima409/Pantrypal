@@ -1,0 +1,3 @@
+# ai-services/diet-planner/requirements.txt
+flask>=3.0
+pymysql>=1.1

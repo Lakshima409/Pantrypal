@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #FFFBEB;
+  --color-cream-dark: #FEF3C7;
+  --color-cream-card: #FFFFF0;
+  --color-coral: #FF6F61;
+  --color-coral-dark: #E85D4F;
+  --color-coral-light: #FF8A7D;
+  --color-cocoa: #3E2723;
+  --color-input: #EFEFF4;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  width: 100%;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  background-color: #FFFAEB;
+  color: #1a1a1a;
+  line-height: 1.5;
+  display: block;
+  min-width: 320px;
+}
+
+a { text-decoration: none; }
+button { cursor: pointer; font-family: inherit; }
+
+.food-bg {
+  background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1920&q=80');
+  background-size: cover;
+  background-position: center;
+}
+.food-bg-dark {
+  background-image:
+    linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
+    url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1920&q=80');
+  background-size: cover;
+  background-position: center;
+}
+.chef-bg {
+  background-image:
+    linear-gradient(rgba(0,0,0,0.62), rgba(0,0,0,0.62)),
+    url('https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=1920&q=80');
+  background-size: cover;
+  background-position: center;
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+

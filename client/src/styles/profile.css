@@ -1,0 +1,42 @@
+/* Profile page styles (pf- prefix). Reuses the shared pl- theme from plan-pages.css. */
+
+.pf-identity { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.pf-avatar {
+  width: 92px; height: 92px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-family: Georgia, serif; font-weight: 800; font-size: 40px;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.18);
+}
+.pf-avatar-sm { width: 30px; height: 30px; font-size: 15px; box-shadow: none; }
+.pf-who h2 { font-family: Georgia, serif; font-size: 26px; font-weight: 800; margin: 0; color: #240d04; }
+.pf-who p { margin: 4px 0 0; font-size: 13.5px; color: #8a7a68; font-weight: 600; }
+.pf-swatches { display: flex; gap: 8px; margin-top: 8px; }
+.pf-swatch { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+.pf-swatch.on { outline: 2px solid #240d04; outline-offset: 2px; }
+
+.pf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 22px; }
+.pf-field > label { display: block; font-size: 12.5px; font-weight: 800; color: #3a2a20; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 8px; }
+.pf-field input, .pf-field select {
+  width: 100%; height: 44px; border: 1px solid #e0d3bf; border-radius: 10px;
+  padding: 0 14px; font-size: 14px; background: #fff; color: #1c0f08;
+}
+.pf-field input:focus, .pf-field select:focus { outline: none; border-color: #ff6b4a; }
+.pf-field input[readonly] { background: #f7f1e8; color: #8a7a68; }
+
+.pf-chip { display: inline-flex; align-items: center; gap: 8px; border: 1.5px solid #e7dccb; background: #fff; border-radius: 999px; padding: 8px 14px; font-size: 13px; font-weight: 600; color: #3a2a20; cursor: pointer; user-select: none; }
+.pf-chip input { width: 15px; height: 15px; accent-color: #ff6b4a; margin: 0; }
+.pf-chip.on { border-color: #ff6b4a; background: #fff3ee; color: #d9482a; }
+.pf-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.pf-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+.pf-saved { font-size: 13px; font-weight: 700; color: #2f8f5b; }
+
+.pf-summary { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 12px; }
+.pf-summary li { display: flex; align-items: center; gap: 12px; background: #fffaf3; border: 1px solid #eadfce; border-radius: 12px; padding: 12px 16px; font-size: 14px; font-weight: 600; color: #3a2a20; }
+.pf-summary .ic { font-size: 20px; }
+.pf-summary .muted { color: #a49481; font-weight: 600; }
+
+@media (max-width: 760px) {
+  .pf-grid { grid-template-columns: 1fr; }
+  .pf-avatar { width: 72px; height: 72px; font-size: 32px; }
+}

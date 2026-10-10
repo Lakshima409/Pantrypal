@@ -1,0 +1,116 @@
+/* Shared styles for the Diet Plan + Shopping List pages (pl- prefix).
+   Matches the recipe-generator design system: cream/coral/brown, serif headings,
+   white rounded cards, coral active states. */
+
+.pl-page {
+  min-height: 100vh;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: #1c0f08;
+  background: linear-gradient(rgba(26,13,5,0.52), rgba(26,13,5,0.52)), url('/assets/gen-kitchen-cook.jpg') center/cover fixed no-repeat;
+}
+.pl-wrap { max-width: 1180px; margin: 0 auto; padding: 26px 20px 56px; }
+
+/* Hero */
+.pl-hero { max-width: 1180px; margin: 28px auto 0; padding: 0 20px; }
+.pl-hero-card {
+  border-radius: 22px; overflow: hidden; text-align: center; padding: 60px 32px 52px;
+  background: linear-gradient(160deg, #2c1408 0%, #4d2411 42%, #8a5533 74%, #dcc4a3 100%);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+}
+.pl-hero-card h1 { font-family: Georgia, serif; font-weight: 800; font-size: 46px; line-height: 1.12; margin: 0; color: #fff; letter-spacing: -0.5px; text-shadow: 0 3px 18px rgba(0,0,0,0.35); }
+.pl-hero-card h1 .coral { color: #ff6b4a; display: block; text-shadow: 0 3px 18px rgba(0,0,0,0.25); }
+.pl-hero-card p { margin: 18px auto 0; max-width: 620px; font-size: 15.5px; font-weight: 600; line-height: 1.7; color: #f6ead9; text-shadow: 0 2px 12px rgba(0,0,0,0.4); }
+.pl-hero-actions { margin-top: 24px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.pl-btn-ghost { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.12); color: #fff; border: 1.5px solid rgba(255,255,255,0.55); border-radius: 10px; padding: 0 22px; height: 44px; font-weight: 700; font-size: 14px; cursor: pointer; text-decoration: none; }
+.pl-btn-ghost:hover { background: rgba(255,255,255,0.22); }
+
+/* Card */
+.pl-card { background: #fff; border-radius: 18px; box-shadow: 0 14px 40px rgba(0,0,0,0.16); padding: 28px; margin-top: 30px; }
+.pl-card-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+.pl-pref-title { text-align: center; color: #ff6b4a; font-family: Georgia, serif; font-size: 23px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; margin: 0; }
+.pl-pref-rule { width: 100%; max-width: 520px; height: 3px; background: #ff6b4a; border-radius: 2px; margin: 12px auto 6px; }
+.pl-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #ff6b4a; color: #fff; border: none; border-radius: 10px; padding: 0 22px; height: 44px; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 8px 20px rgba(255,107,74,0.35); text-decoration: none; }
+.pl-btn:hover { background: #f25a38; }
+.pl-btn-dark { background: #7c2d0e; box-shadow: 0 8px 20px rgba(124,45,14,0.3); }
+.pl-btn-dark:hover { background: #5f2708; }
+
+/* Diet filter chips */
+.pl-chips { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 16px; }
+.pl-chip { border: 1.5px solid #e7dccb; background: #fff; color: #3a2a20; border-radius: 999px; padding: 8px 16px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.pl-chip:hover { border-color: #ff6b4a; color: #ff6b4a; }
+.pl-chip.on { background: #ff6b4a; border-color: #ff6b4a; color: #fff; box-shadow: 0 6px 16px rgba(255,107,74,0.4); }
+
+/* ---- Diet plan grid ---- */
+.pl-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; margin-top: 24px; }
+.pl-day { background: #fffaf3; border: 1px solid #eadfce; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+.pl-day-head { background: #240d04; color: #fff; text-align: center; font-weight: 800; font-size: 13px; padding: 9px 0; letter-spacing: 0.4px; }
+.pl-day-today .pl-day-head { background: #ff6b4a; }
+.pl-slot { padding: 10px 10px 12px; border-top: 1px solid #f0e6d8; }
+.pl-slot:first-of-type { border-top: none; }
+.pl-slot-label { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; color: #a49481; margin-bottom: 6px; }
+.pl-meal { display: flex; gap: 8px; align-items: center; }
+.pl-meal img { width: 42px; height: 42px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+.pl-meal-info { min-width: 0; flex: 1; }
+.pl-meal-title { font-size: 12.5px; font-weight: 700; color: #2b1c12; line-height: 1.25; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.pl-meal-meta { font-size: 10.5px; color: #a49481; margin-top: 2px; }
+.pl-meal-actions { display: flex; flex-direction: column; gap: 4px; }
+.pl-icon-btn { width: 24px; height: 24px; border-radius: 6px; border: 1px solid #e0d3bf; background: #fff; color: #7c2d0e; cursor: pointer; font-size: 12px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
+.pl-icon-btn:hover { border-color: #ff6b4a; color: #ff6b4a; }
+.pl-empty { border: 1.5px dashed #e0d3bf; border-radius: 8px; padding: 10px 8px; text-align: center; font-size: 12px; color: #a49481; cursor: pointer; width: 100%; background: #fff; }
+.pl-empty:hover { border-color: #ff6b4a; color: #ff6b4a; }
+
+/* Summary stats */
+.pl-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 24px; }
+.pl-stat { background: #fffaf3; border: 1px solid #eadfce; border-radius: 14px; padding: 18px; text-align: center; }
+.pl-stat-num { font-family: Georgia, serif; font-size: 30px; font-weight: 800; color: #240d04; }
+.pl-stat-lbl { font-size: 12px; font-weight: 700; color: #a49481; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+
+/* ---- Shopping list ---- */
+.pl-sl-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.pl-progress { flex: 1; min-width: 200px; }
+.pl-progress-track { height: 10px; background: #f0e6d8; border-radius: 999px; overflow: hidden; }
+.pl-progress-fill { height: 100%; background: linear-gradient(90deg, #ff6b4a, #ff8a6a); border-radius: 999px; transition: width .25s; }
+.pl-progress-lbl { font-size: 12.5px; font-weight: 700; color: #6b5b4d; margin-bottom: 6px; }
+
+.pl-addrow { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+.pl-addrow input, .pl-addrow select { height: 44px; border: 1px solid #e0d3bf; border-radius: 10px; padding: 0 12px; font-size: 13.5px; background: #fff; color: #1c0f08; }
+.pl-addrow input:focus, .pl-addrow select:focus { outline: none; border-color: #ff6b4a; }
+.pl-addrow .pl-in-name { flex: 2 1 220px; }
+.pl-addrow .pl-in-qty { width: 90px; }
+.pl-addrow .pl-in-unit { width: 110px; }
+.pl-addrow .pl-in-cat { width: 150px; }
+
+.pl-cat { margin-top: 22px; }
+.pl-cat-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.pl-cat-emoji { font-size: 20px; }
+.pl-cat-name { font-family: Georgia, serif; font-weight: 800; font-size: 15px; color: #240d04; text-transform: uppercase; letter-spacing: 0.4px; }
+.pl-cat-count { font-size: 12px; color: #a49481; font-weight: 700; }
+
+.pl-items { background: #fffaf3; border: 1px solid #eadfce; border-radius: 12px; padding: 6px 10px; }
+.pl-item { display: flex; align-items: center; gap: 12px; padding: 10px 4px; border-bottom: 1px solid #f0e6d8; }
+.pl-item:last-child { border-bottom: none; }
+.pl-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: #ff6b4a; cursor: pointer; flex-shrink: 0; }
+.pl-item-name { flex: 1; font-size: 14px; font-weight: 600; color: #2b1c12; }
+.pl-item.done .pl-item-name { text-decoration: line-through; color: #a49481; }
+.pl-qty-box { display: flex; gap: 6px; align-items: center; }
+.pl-qty-box input { width: 64px; height: 32px; border: 1px solid #e0d3bf; border-radius: 8px; padding: 0 8px; font-size: 12.5px; text-align: center; background: #fff; }
+.pl-qty-box select { height: 32px; border: 1px solid #e0d3bf; border-radius: 8px; padding: 0 6px; font-size: 12.5px; background: #fff; }
+.pl-remove { background: none; border: none; color: #c0392b; cursor: pointer; font-size: 16px; line-height: 1; padding: 4px; }
+.pl-remove:hover { color: #e74c3c; }
+.pl-badge-auto { font-size: 10px; font-weight: 800; color: #ff6b4a; background: #fff3ee; border: 1px solid #ffd9cc; border-radius: 999px; padding: 2px 8px; letter-spacing: 0.3px; }
+
+.pl-empty-list { text-align: center; padding: 40px 10px; color: #a49481; }
+.pl-empty-list .big { font-size: 42px; margin-bottom: 8px; }
+
+@media (max-width: 900px) {
+  .pl-hero-card h1 { font-size: 32px; }
+  .pl-days { grid-template-columns: repeat(2, 1fr); }
+  .pl-stats { grid-template-columns: repeat(2, 1fr); }
+  .pl-card { padding: 20px; }
+}
+@media (max-width: 560px) {
+  .pl-days { grid-template-columns: 1fr; }
+  .pl-item { flex-wrap: wrap; }
+}
+
+

@@ -1,0 +1,7 @@
+﻿mysql.exe : ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+At line:1 char:259
++ ... LL OR image_url='')) FROM recipe_db.recipes;"); & $my @a 2>&1 | Out-F ...
++                                                     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (ERROR 1045 (280...g password: NO):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 

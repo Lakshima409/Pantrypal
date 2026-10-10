@@ -1,0 +1,116 @@
+/* Recipe Generator page — matched to design screenshots (rg- prefix) */
+.rg-page {
+  min-height: 100vh;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: #1c0f08;
+  background:
+    linear-gradient(rgba(26,13,5,0.52), rgba(26,13,5,0.52)),
+    url('/assets/gen-kitchen-cook.jpg') center/cover fixed no-repeat;
+}
+.rg-wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px 56px; }
+
+/* Navbar */
+.rg-nav { position: sticky; top: 0; z-index: 30; background: rgba(255,250,243,0.97); box-shadow: 0 2px 14px rgba(0,0,0,0.10); }
+.rg-nav-inner { max-width: 1240px; margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; }
+.rg-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #240d04; }
+.rg-brand img { width: 34px; height: 34px; border-radius: 8px; object-fit: contain; background: #fff8e8; }
+.rg-brand span { font-weight: 800; font-size: 20px; letter-spacing: -0.3px; }
+.rg-links { display: flex; align-items: center; gap: 4px; }
+.rg-links a { text-decoration: none; color: #3a2a20; font-size: 14px; font-weight: 600; padding: 8px 14px; border-radius: 999px; }
+.rg-links a:hover { color: #ff6b4a; }
+.rg-links a.active { background: #ff6b4a; color: #fff; box-shadow: 0 6px 16px rgba(255,107,74,0.4); }
+
+/* Hero */
+.rg-hero { max-width: 1180px; margin: 28px auto 0; padding: 0 20px; }
+.rg-hero-card {
+  border-radius: 22px; overflow: hidden; text-align: center; padding: 72px 32px 62px;
+  background: linear-gradient(160deg, #2c1408 0%, #4d2411 42%, #8a5533 74%, #dcc4a3 100%);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+}
+.rg-hero-card h1 { font-family: Georgia, serif; font-weight: 800; font-size: 52px; line-height: 1.12; margin: 0; color: #fff; letter-spacing: -0.5px; text-shadow: 0 3px 18px rgba(0,0,0,0.35); }
+.rg-hero-card h1 .coral { color: #ff6b4a; display: block; text-shadow: 0 3px 18px rgba(0,0,0,0.25); }
+.rg-hero-card p { margin: 20px auto 0; max-width: 640px; font-size: 16px; font-weight: 600; line-height: 1.7; color: #f6ead9; text-shadow: 0 2px 12px rgba(0,0,0,0.4); }
+
+/* Search bar */
+.rg-search { max-width: 1180px; margin: -30px auto 0; padding: 0 20px; position: relative; z-index: 5; }
+.rg-search-card { background: #fff; border-radius: 16px; box-shadow: 0 16px 40px rgba(0,0,0,0.18); padding: 16px; display: flex; gap: 12px; }
+.rg-search-card input { flex: 1; height: 48px; border: 1px solid #eadfce; border-radius: 10px; padding: 0 16px; font-size: 14px; color: #1c0f08; }
+.rg-search-card input:focus { outline: none; border-color: #ff6b4a; }
+.rg-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #ff6b4a; color: #fff; border: none; border-radius: 10px; padding: 0 26px; height: 48px; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 8px 20px rgba(255,107,74,0.35); }
+.rg-btn:hover { background: #f25a38; }
+
+/* Cards */
+.rg-card { background: #fff; border-radius: 18px; box-shadow: 0 14px 40px rgba(0,0,0,0.16); padding: 30px; margin-top: 34px; }
+.rg-card-title { display: flex; align-items: center; gap: 14px; }
+.rg-card-title img { width: 54px; height: 54px; border-radius: 50%; object-fit: contain; background: #fff8e8; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+.rg-card-title h2 { font-family: Georgia, serif; font-size: 26px; font-weight: 800; margin: 0; color: #240d04; }
+.rg-underline { width: 220px; height: 3px; background: #ff6b4a; border-radius: 2px; margin: 12px 0 0 68px; }
+
+/* add ingredient row */
+.rg-add-row { display: flex; gap: 12px; margin-top: 24px; }
+.rg-add-row input { flex: 1; height: 48px; border: 1px solid #eadfce; border-radius: 10px; padding: 0 16px; font-size: 14px; }
+.rg-add-row input:focus { outline: none; border-color: #ff6b4a; }
+
+/* category dropdowns */
+.rg-cats { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 24px; }
+.rg-cat { flex: 1 1 200px; min-width: 180px; }
+.rg-cat label { display: block; font-size: 13px; font-weight: 700; color: #3a2a20; margin-bottom: 8px; }
+.rg-cat select, .rg-sel { width: 100%; height: 46px; border: 1px solid #eadfce; border-radius: 10px; padding: 0 12px; font-size: 14px; background: #fff; color: #1c0f08; }
+.rg-cat select:focus, .rg-sel:focus { outline: none; border-color: #ff6b4a; }
+
+/* popular */
+.rg-popular-label { text-align: center; color: #8a7a6c; font-size: 13.5px; margin: 26px 0 12px; }
+.rg-popular { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.rg-pop { background: #fff; border: 1.5px solid #e7dccb; color: #3a2a20; border-radius: 999px; padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.rg-pop:hover { border-color: #ff6b4a; color: #ff6b4a; }
+
+
+/* preferences */
+.rg-pref-title { text-align: center; color: #ff6b4a; font-family: Georgia, serif; font-size: 24px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; margin: 0; }
+.rg-pref-rule { width: 100%; max-width: 640px; height: 3px; background: #ff6b4a; border-radius: 2px; margin: 12px auto 0; }
+.rg-field { margin-top: 24px; }
+.rg-field > label { display: block; font-size: 13.5px; font-weight: 700; color: #3a2a20; margin-bottom: 10px; }
+.rg-cal { display: flex; gap: 12px; max-width: 420px; }
+.rg-cal input { flex: 1; height: 44px; border: 1px solid #eadfce; border-radius: 10px; padding: 0 14px; font-size: 14px; }
+.rg-cal input:focus { outline: none; border-color: #ff6b4a; }
+.rg-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.rg-chip { display: inline-flex; align-items: center; gap: 8px; border: 1.5px solid #e7dccb; border-radius: 10px; padding: 8px 12px; font-size: 13px; font-weight: 600; color: #3a2a20; cursor: pointer; background: #fff; user-select: none; }
+.rg-chip input { width: 15px; height: 15px; accent-color: #ff6b4a; margin: 0; }
+.rg-chip.on { border-color: #ff6b4a; background: #fff3ee; color: #d9482a; }
+.rg-two { display: flex; flex-wrap: wrap; gap: 18px; }
+.rg-two .rg-field { flex: 1 1 240px; }
+
+/* your pantry */
+.rg-pantry-box { border: 2px dashed #e0d3bf; border-radius: 14px; padding: 22px; margin-top: 20px; display: flex; flex-wrap: wrap; gap: 14px; }
+.rg-pchip { display: inline-flex; align-items: center; gap: 10px; background: #7c2d0e; color: #fff; border-radius: 999px; padding: 8px 8px 8px 16px; font-size: 13.5px; font-weight: 600; }
+.rg-pchip button { width: 22px; height: 22px; border-radius: 50%; border: none; background: rgba(255,255,255,0.92); color: #7c2d0e; font-weight: 800; cursor: pointer; line-height: 1; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; }
+.rg-pchip button:hover { background: #fff; }
+
+/* dropzone / preview */
+.rg-drop { border: 2px dashed #ff6b4a; border-radius: 14px; background: #fffaf3; margin-top: 20px; padding: 34px 20px; text-align: center; cursor: pointer; }
+.rg-drop.drag { background: #fff0e9; }
+.rg-drop-icon { font-size: 34px; color: #ff6b4a; }
+.rg-drop-text { margin-top: 10px; font-size: 14px; color: #6b5b4d; font-weight: 600; }
+.rg-drop-or { margin: 8px 0; font-size: 12px; color: #a49481; }
+.rg-drop-file { color: #ff6b4a; font-weight: 700; font-size: 14px; text-decoration: underline; }
+.rg-preview { margin-top: 20px; text-align: center; }
+.rg-preview img { max-height: 240px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+.rg-remove { margin-top: 12px; background: none; border: none; color: #7c2d0e; font-size: 13.5px; font-weight: 700; cursor: pointer; text-decoration: underline; }
+.rg-gen { margin-top: 24px; }
+
+/* footer */
+.rg-footer { background: rgba(255,250,243,0.97); margin-top: 40px; border-top: 1px solid #eadfce; }
+.rg-footer-inner { max-width: 1180px; margin: 0 auto; padding: 22px 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.rg-footer-links { display: flex; gap: 40px; }
+.rg-footer-links a { color: #6b5b4d; text-decoration: none; font-size: 14px; font-weight: 600; }
+.rg-footer-links a:hover { color: #ff6b4a; }
+.rg-footer-copy { font-size: 12.5px; color: #a49481; }
+
+@media (max-width: 760px) {
+  .rg-hero-card h1 { font-size: 34px; }
+  .rg-hero-card { padding: 52px 22px 46px; }
+  .rg-links { gap: 0; }
+  .rg-links a { padding: 7px 9px; font-size: 12.5px; }
+  .rg-underline { margin-left: 0; }
+  .rg-card { padding: 22px; }
+}

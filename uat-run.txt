@@ -1,0 +1,31 @@
+﻿PantryPal month-long UAT -- base http://localhost:5000 (DB seed OFF)
+  PASS [register] account created (201 + token) -- status=201
+  PASS [register] public user shape has id/name/email
+  PASS [profile] preferences saved -- status=200
+  PASS [profile] calorieGoal=1900 persisted -- "1900"
+  PASS [profile] peanut allergy persisted -- ["peanut"]
+  PASS [profile] vegetarian diet persisted -- {"dietType":"vegetarian","dietary":["vegetarian"]}
+  PASS [profile] preferences round-trip
+  PASS [pantry] 30-day pantry built (base 6 + 20 weekly) -- 26 items
+  PASS [history] seed corpus discoverable (>=8 recipes) -- 12 ids
+  PASS [history] favorite route works (saved interactions) -- 200/200
+  PASS [history] unfavorite route works
+  PASS [history] interaction DB seed skipped (no DB_DSN)
+  PASS [recommend] recommended returns 12 ranked recipes -- status=200 n=12
+  PASS [recommend] recipes carry score/pantryMatch/dietMatch -- top score=0.727
+  PASS [recommend] no peanut recipes for allergic user -- 12 clean
+     top-5: Healthy Asian Chicken Thigh Wrap | Golden Italian Chickpeas Rice | Simple Mexican Chickpeas Curry | Spicy Mexican Chickpeas Noodles | Golden Italian Chickpeas Stir-Fry
+  PASS [recommend] already sorted by score desc
+  PASS [mealplan] week generated -- status=200
+  PASS [mealplan] plan covers 5+ days / 14+ meals -- 7d/28m
+  PASS [mealplan] nutrition totals present -- meals=28 kcal=14983.9 protein=763.4
+  PASS [mealplan] planned recipe resolves to detail -- id=19
+  PASS [shopping] list generated from plan -- status=200
+  PASS [shopping] non-empty deduplicated list -- 185 items
+  PASS [shopping] no duplicate ingredient names -- unique 185/185
+     preview: flour 484.11 g, ground rice 387 372.11 g, ground mint 311 289.28 ml, light chicken 320 87.84 g, fresh pumpkin 578 435.12 g, roasted paprika 496 350.81 g, whole prawns 936 381.2 g, mild salmon 410 481.59 g ...
+  PASS [shopping] check-off works -- status=200
+  PASS [personalize] diet preference still vegetarian -- "vegetarian"
+  PASS [personalize] plan still populated for this user -- 28 meals / 7 days
+
+UAT month simulation: 26/26 checks passed.
