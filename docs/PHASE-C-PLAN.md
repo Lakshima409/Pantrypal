@@ -6,7 +6,7 @@ default (no key required, no surprise spend), DB-backed ratings/comments designe
 local-no-auth demo via localStorage, nutrition+score display where the fields exist,
 a WCAG checklist PR-style pass, and a real CI workflow that runs green offline.
 
-## C1 — NLP search (§37)
+## C1 — NLP search 
 - `server/utils/nlpSearch.js` (pure, node --test covered): tokenize/stopwords,
   diet + cuisine + ingredient + `under N calories/minutes` extraction,
   `q`-shaped structured output. Example: "spicy vegan dinner under 500 calories"
@@ -18,7 +18,7 @@ a WCAG checklist PR-style pass, and a real CI workflow that runs green offline.
 - Client: `RecipeSearchClean` gains an NL input line using the same parse +
   a "parsed as" chip row; pure fallback still works if the server is down.
 
-## C2 — Image recognition (§13, Phase-2 guidance)
+## C2 — Image recognition 
 - `server/services/visionService.js`: `detectFromBytes()` contract — if
   `VISION_API_URL` (+optional key) is set, forwards to an external vision
   endpoint; otherwise returns a deterministic filename-hint heuristic and
@@ -31,7 +31,7 @@ a WCAG checklist PR-style pass, and a real CI workflow that runs green offline.
   candidate checkboxes -> add to pantry, graceful fallback message when the
   API is unreachable. Pure Node test covers the heuristic path deterministically.
 
-## C3 — Ratings/comments UI (§35)
+## C3 — Ratings/comments UI 
 - Decision: no new ratings/comments tables in this increment (schema owned by
   the report's canonical migration; interaction tables exist for the Phase-B
   signal). Ratings/comments are demonstrated with a per-recipe localStorage
@@ -43,7 +43,7 @@ a WCAG checklist PR-style pass, and a real CI workflow that runs green offline.
   button writing a `report` interaction via recipeService (best-effort).
 - `RecipeSearchClean` cards show the averaged stars.
 
-## C4 — Spoonacular cache (§52)
+## C4 — Spoonacular cache 
 - `server/services/spoonacular.js`: cache-first (memory + optional
   `external_recipe_cache` table behind `SPOONACULAR_CACHE_DB=1`), normalize to
   the Recipe shape, OFF by default (`SPOONACULAR_ENABLED=0`); when on, Node-only
@@ -63,7 +63,7 @@ a WCAG checklist PR-style pass, and a real CI workflow that runs green offline.
 - `RecipeDetailsClean` (live path): nutrition panel + score line from the API
   when available, static fallback otherwise.
 
-## C6 — WCAG 2.1 audit (§56)
+## C6 — WCAG 2.1 audit
 - Fix pass, no framework churn: skip-link + landmark roles in MainLayout;
   decorative images `alt=""`, content images descriptive `alt`; icon-only
   buttons named; form inputs labelled; focus-visible ring in CSS; colour
