@@ -38,6 +38,7 @@ def recommend():
             pantry=body.get("pantry") or [],
             preferences=body.get("preferences") or {},
             filters=body.get("filters"),
+            hour=body.get("hour"),
         )
     except Exception as exc:  # never 500 Node's 1.8s fallback away silently
         print(f"[recommender] error: {exc}")

@@ -2,8 +2,10 @@
 # Hybrid recommender: TF-IDF content similarity (§19) + collaborative
 # filtering (§22) + pantry/diet/nutrition/expiry signals (§20-21), combined
 # with the §24 weights. Loads its corpus from MySQL and refreshes on a timer.
+import math
 import threading
 import time
+from datetime import datetime
 
 import numpy as np
 import pymysql
@@ -14,8 +16,25 @@ import scoring
 from config import DB_CONFIG
 from preprocessing import recipe_document
 
+# Phase 3.2 — what counts as positive feedback. Views are weak implicit
+# signal; saves/likes/cooks/ratings are positive. Weights feed both the
+# content-history profile and the user-user CF neighbour similarity.
 INTERACTION_WEIGHTS = {"viewed": 1, "saved": 2, "liked": 3, "cooked": 4, "rated": 5}
+POSITIVE_TYPES = {"saved", "liked", "cooked", "rated"}
+# Temporal decay: interactions older than the half-life count half as much.
+# 90 days keeps the 62-recipe dev corpus stable while letting recent cooks
+# outweigh stale views on the real dataset.
+CF_HALF_LIFE_DAYS = 90.0
 REFRESH_SECONDS = 900  # rebuild corpus every 15 minutes
+
+
+def _decay_weight(base_weight, age_days):
+    """Exponential time decay on an interaction weight (Phase 3.2)."""
+    try:
+        age = max(float(age_days or 0.0), 0.0)
+    except (TypeError, ValueError):
+        age = 0.0
+    return float(base_weight) * (0.5 ** (age / CF_HALF_LIFE_DAYS))
 
 
 def _fetch(sql, args=None):
@@ -55,7 +74,10 @@ class Recommender:
             "JOIN tags t ON t.tag_id = rt.tag_id"
         )
         nut_rows = _fetch("SELECT recipe_id, calories, protein FROM nutrition_info")
-        inter_rows = _fetch("SELECT user_id, recipe_id, type FROM interactions")
+        inter_rows = _fetch(
+            "SELECT user_id, recipe_id, type, "
+            "COALESCE(timestamp, NOW()) AS ts FROM interactions"
+        )
         pop_rows = _fetch(
             "SELECT recipe_id, COUNT(*) AS n FROM interactions GROUP BY recipe_id"
         )
@@ -78,13 +100,22 @@ class Recommender:
                                       ngram_range=(1, 2), min_df=2)
         matrix = vectoriser.fit_transform(docs)
 
-        # user_id -> {recipe_id: weight}; recipe_id -> set of users (CF index)
+        # user_id -> {recipe_id: decayed weight}; recipe_id -> set of users.
+        # Sparse-history guard: users with a single interaction keep the raw
+        # weight (no decay penalty) so cold users still get CF neighbours.
+        now = datetime.now()
         history, by_recipe = {}, {}
         for row in inter_rows:
-            w = INTERACTION_WEIGHTS.get(row["type"], 1)
+            base = INTERACTION_WEIGHTS.get(row["type"], 1)
+            ts = row.get("ts")
+            try:
+                age_days = (now - ts).total_seconds() / 86400.0 if ts else 0.0
+            except (TypeError, AttributeError):
+                age_days = 0.0
+            w = _decay_weight(base, age_days)
             uid, rid = int(row["user_id"]), int(row["recipe_id"])
             user_hist = history.setdefault(uid, {})
-            user_hist[rid] = max(user_hist.get(rid, 0), w)
+            user_hist[rid] = max(user_hist.get(rid, 0.0), w)
             by_recipe.setdefault(rid, set()).add(uid)
 
         max_pop = max(popularity.values()) if popularity else 1
@@ -178,7 +209,7 @@ class Recommender:
 
     # ---------- main entry ----------
 
-    def recommend(self, user_id, limit, pantry, preferences, filters=None):
+    def recommend(self, user_id, limit, pantry, preferences, filters=None, hour=None):
         uid = int(user_id) if user_id else None
         pantry_names, expiring = [], []
         for p in pantry or []:
@@ -232,4 +263,9 @@ class Recommender:
             })
 
         results.sort(key=lambda r: r["score"], reverse=True)
+        # Phase 3 Priority 1 — time-of-day context (opt-in via hour=).
+        slot = scoring.meal_slot_for_hour(hour) if hour is not None else None
+        if slot:
+            tags_by_id = {rid: tags.get(rid, []) for rid in ids}
+            results = scoring.apply_context(results, tags_by_id, slot)
         return results[: int(limit) or 12]
