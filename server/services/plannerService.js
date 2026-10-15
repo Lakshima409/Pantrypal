@@ -29,6 +29,10 @@ async function callAiPlanner(payload) {
 
 // Local fallback: candidate recipes matching the diet, avoiding allergens,
 // spread round-robin across the week for variety (4 slots/day per §28).
+// Phase 4 / DEV-07: the pool REFILLS from the full allowed list when it runs
+// out, so the week is always complete (28 meals); repeats are only used when
+// the corpus genuinely cannot cover the week. Slot targets follow the same
+// 25/35/30/10 share rule as the Flask planner (configurable there).
 async function heuristicWeek({ userId, dietType, allergies, calorieGoal }) {
   let prefs = {};
   if (userId) prefs = await UserModel.getPreferences(userId);
@@ -45,29 +49,39 @@ async function heuristicWeek({ userId, dietType, allergies, calorieGoal }) {
     ingredients: [],
   });
 
+  // Exclusions BEFORE selection (same ordering guarantee as the Flask planner).
   const allowed = candidates.filter((recipe) =>
     !recipe.ingredients.some((ing) => banned.some((term) => String(ing.name).toLowerCase().includes(term)))
   );
 
-  const pool = (allowed.length ? allowed : candidates).slice(0, 60);
+  const base = (allowed.length ? allowed : candidates).slice(0, 60);
+  if (!base.length) return [];
   const target = Number(calorieGoal) || Number(prefs.calorieGoal) || 2000;
   const MEAL_TYPES = ["breakfast", "lunch", "dinner", "snack"];
-  const mealsPerDayTarget = target / DAYS.length / MEAL_TYPES.length;
+  const SHARES = { breakfast: 0.25, lunch: 0.35, dinner: 0.3, snack: 0.1 };
 
   const meals = [];
+  const used = new Set();
   let cursor = 0;
   for (const day of DAYS) {
     for (const mealType of MEAL_TYPES) {
-      // Prefer recipes near the per-meal calorie target.
-      const pick =
-        pool.find(
-          (r) => r.nutrition && Math.abs((r.nutrition.calories || 0) - mealsPerDayTarget) < 150
-        ) || pool[cursor % Math.max(pool.length, 1)];
-      cursor += 1;
-      if (!pick) break;
+      const mealTarget = target * (SHARES[mealType] || 0.25);
+      // Prefer an unused recipe near the slot's calorie target.
+      const near = base.find(
+        (r) => !used.has(r.id) && r.nutrition &&
+          Math.abs((r.nutrition.calories || 0) - mealTarget) < 150
+      );
+      // Next unused recipe round-robin; refill from `base` when exhausted.
+      let pick = near;
+      if (!pick) {
+        for (let i = 0; i < base.length; i += 1) {
+          const cand = base[(cursor + i) % base.length];
+          if (!used.has(cand.id)) { pick = cand; cursor = (cursor + i + 1) % base.length; break; }
+        }
+      }
+      if (!pick) { pick = base[cursor % base.length]; cursor = (cursor + 1) % base.length; } // corpus smaller than 28 → deliberate reuse
       meals.push({ day, mealType, recipeId: pick.id });
-      pool.splice(pool.indexOf(pick), 1);
-      if (!pool.length) break;
+      used.add(pick.id);
     }
   }
   return meals;

@@ -3,11 +3,31 @@ const db = require("../config/db");
 
 const normalize = (name) => String(name || "").trim().toLowerCase();
 
+// Phase 4: allergen guard. Drops any substitute whose name clashes with a
+// banned term (allergies / dietary restrictions / health conditions).
+// Plural-tolerant: the UI's "peanuts" also matches a "peanut oil" substitute.
+// Exposed as a pure function so unit tests cover it without MySQL.
+function filterSubstitutes(substitutes, bannedTerms) {
+  const banned = [];
+  for (const t of bannedTerms || []) {
+    const n = normalize(t);
+    if (!n) continue;
+    banned.push(n);
+    if (n.endsWith("s") && n.length > 3) banned.push(n.slice(0, -1)); // peanuts → peanut
+  }
+  if (!banned.length) return substitutes || [];
+  return (substitutes || []).filter((s) => {
+    const name = normalize(s.name || s.substitute || "");
+    return !banned.some((term) => name.includes(term));
+  });
+}
+
 /**
  * Returns [{ original, substitutes: [{ name, ratio, bestFor, closeness }] }]
  * for every requested ingredient that has substitution data in the dataset.
+ * Phase 4: pass bannedTerms (allergies etc.) to suppress unsafe swaps.
  */
-async function getForIngredients(names) {
+async function getForIngredients(names, bannedTerms = []) {
   const clean = [...new Set((names || []).map(normalize).filter(Boolean))];
   if (!clean.length) return [];
 
@@ -45,16 +65,19 @@ async function getForIngredients(names) {
       const subs = [...parseSubs(row.substitutions_json)];
       return {
         original: row.name,
-        substitutes: subs
-          .sort((a, b) => (b.closeness_score || 0) - (a.closeness_score || 0))
-          .map((s) => ({
-            name: s.substitute,
-            ratio: s.ratio || null,
-            bestFor: s.best_for || null,
-            closeness: s.closeness_score || null,
-          })),
+        substitutes: filterSubstitutes(
+          subs
+            .sort((a, b) => (b.closeness_score || 0) - (a.closeness_score || 0))
+            .map((s) => ({
+              name: s.substitute,
+              ratio: s.ratio || null,
+              bestFor: s.best_for || null,
+              closeness: s.closeness_score || null,
+            })),
+          bannedTerms
+        ),
       };
     });
 }
 
-module.exports = { getForIngredients };
+module.exports = { getForIngredients, filterSubstitutes };

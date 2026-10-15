@@ -54,7 +54,7 @@ entries are unreachable dead ends.
 | Expiry dates | Implemented | `expiry_date` column via `migrations/add_expiry_date.sql` |
 | Expiry-aware prioritisation | Implemented | `scoring.expiry_priority` — ≤3 days earns a bonus (§21); pytest cases cover it |
 | Ingredient categorisation | Implemented | `category` column, defaults to `other` |
-| Image-based ingredient recognition | Not implemented | Phase C item (§13); no vision service exists |
+| Image-based ingredient recognition | Implemented | `server/services/visionService.js` — vision API seam + local filename-hint fallback; `POST /api/recipes/recognize-ingredients` |
 
 ---
 
@@ -92,6 +92,21 @@ entries are unreachable dead ends.
 | Weekly plan retrieval | Implemented | `GET /api/mealplan?week=N` |
 | Weekly nutrition summary | Partially implemented | `MealPlan.weekNutrition` is called by `getWeek` but depends on populated `nutrition_info`; unverified against the real corpus |
 | Diet-type preference in planning | Partially implemented | Applied only when ≥10 recipes carry the tag, otherwise silently ignored (`planner.py:95`) |
+
+---
+
+## 4.5. Phase 5 — Advanced features
+
+| Feature | Status | Evidence / notes |
+|---|---|---|
+| Recipe ratings & feedback (1-5 stars + review) | Implemented | `ratings` table (`database/migrations/add_ratings_table.sql`), `server/models/Rating.js`, `server/controllers/ratingController.js`, `POST/GET/DELETE /api/recipes/:id/rate` |
+| My ratings | Implemented | `GET /api/recipes/:id/my-rating`; `Rating.listByUser` |
+| Recipe rating stats | Implemented | `Rating.statsForRecipe` → `avgRating`, `ratingCount` |
+| NLP search enhancement | Implemented | `INGREDIENT_SYNONYMS` (courgette→zucchini, cilantro→coriander, etc.), `expandIngredients()`, time-of-day meal hints, underscore diet tags (`dairy_free`→`dairy-free`); 12 test cases |
+| Nutrition enrichment (USDA FDC) | Implemented | `server/services/nutritionService.js` — USDA FoodData Central API, in-memory cache (24h TTL), nutrient validation (per-100g bounds), graceful OFF-by-default (`NUTRITION_API_KEY`) |
+| Context-aware recommendations | Implemented | `recommendationService.getContextualRecommended` — time-of-day → meal-type reranking (70/30 score blend); `GET /api/recipes/recommended/contextual?timeOfDay=morning` |
+| Ingredient recognition (vision) | Implemented | `server/services/visionService.js` — external vision API seam + local filename-hint fallback; `POST /api/recipes/recognize-ingredients` |
+| Recipe generation (LLM) | Implemented | `server/services/recipeGenerationService.js` — LLM endpoint with JSON schema validation + local heuristic fallback; `POST /api/recipes/generate` |
 
 ---
 
@@ -144,11 +159,11 @@ entries are unreachable dead ends.
 
 | Status | Count |
 |---|---|
-| Implemented | 49 |
+| Implemented | 59 |
 | Partially implemented | 7 |
-| Not implemented | 12 |
+| Not implemented | 10 |
 | Planned | 0 — Phase C items are listed as *Not implemented* until built |
-| **Total** | **68** |
+| **Total** | **76** |
 
 **Headline for Phase 2:** the core product loop — register → set preferences →
 stock a pantry → get recommendations → plan a week → generate a shopping list —

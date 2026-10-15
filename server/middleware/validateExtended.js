@@ -290,6 +290,19 @@ const shoppingUpdate = (req, res, next) => {
   next();
 };
 
+// POST /api/recipes/:id/rate — { rating: 1-5, review? }
+const rateRecipe = (req, res, next) => {
+  const body = req.body || {};
+  const r = toNumber(body.rating);
+  if (!Number.isInteger(r) || r < 1 || r > 5) {
+    return fail(res, "rating must be an integer between 1 and 5.");
+  }
+  if (body.review !== undefined && body.review !== null && String(body.review).length > 1000) {
+    return fail(res, "Review must be 1000 characters or fewer.");
+  }
+  next();
+};
+
 // GET /api/recipes/search + / — numeric + length bounds.
 const recipeSearch = (req, res, next) => {
   const { maxCalories, maxTime, query, q } = req.query || {};
@@ -313,5 +326,5 @@ const recipeSearch = (req, res, next) => {
 module.exports = {
   profileFull, preferencesUpdate, forgotPassword, pantryUpdate,
   mealAdd, mealGenerate, weekQuery, shoppingAdd, shoppingUpdate,
-  recipeSearch, idParam, isPositiveInt,
+  recipeSearch, idParam, isPositiveInt, rateRecipe,
 };

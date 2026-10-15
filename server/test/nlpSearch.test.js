@@ -3,7 +3,7 @@
 const test = require("node:test");
 const assert = require("node:assert");
 
-const { parse } = require("../utils/nlpSearch");
+const { parse, expandIngredients, INGREDIENT_SYNONYMS } = require("../utils/nlpSearch");
 
 test("parses diet + meal + calorie cap", () => {
   const r = parse("spicy vegan dinner under 500 calories");
@@ -41,4 +41,44 @@ test("empty and noise input degrades gracefully", () => {
   assert.strictEqual(r.maxCalories, null);
   const e = parse("");
   assert.strictEqual(e.query, "");
+});
+
+// ---- Phase 5: ingredient synonyms ----
+
+test("expands ingredient synonyms in parsed output", () => {
+  const r = parse("courgette and aubergine ratatouille");
+  assert.ok(r.ingredients.includes("zucchini"), "courgette -> zucchini");
+  assert.ok(r.ingredients.includes("eggplant"), "aubergine -> eggplant");
+});
+
+test("expands ingredient synonyms via expandIngredients", () => {
+  const out = expandIngredients(["courgette", "cilantro", "chicken breast"]);
+  assert.ok(out.includes("zucchini"), "courgette -> zucchini");
+  assert.ok(out.includes("coriander"), "cilantro -> coriander");
+  assert.ok(out.includes("chicken breast"), "kept original");
+  // de-duplicated: 5 items (courgette, zucchini, cilantro, coriander, chicken breast)
+  assert.strictEqual(new Set(out).size, out.length);
+  assert.strictEqual(out.length, 5);
+});
+
+test("recognises time-of-day meal hints", () => {
+  assert.strictEqual(parse("morning oatmeal").meal, "breakfast");
+  assert.strictEqual(parse("midday salad").meal, "lunch");
+  assert.strictEqual(parse("evening stew").meal, "dinner");
+  assert.strictEqual(parse("late night snack").meal, "snack");
+});
+
+test("recognises underscore diet tags", () => {
+  const r = parse("dairy_free gluten_free nut_free snacks");
+  assert.ok(r.dietary.includes("dairy-free"));
+  assert.ok(r.dietary.includes("gluten-free"));
+  assert.ok(r.dietary.includes("nut-free"));
+});
+
+// ---- SYNONYM_EXPANSIONS sanity (not exported, but INGREDIENT_SYNONYMS is) ----
+
+test("INGREDIENT_SYNONYMS maps known aliases", () => {
+  assert.strictEqual(INGREDIENT_SYNONYMS["courgette"], "zucchini");
+  assert.strictEqual(INGREDIENT_SYNONYMS["cilantro"], "coriander");
+  assert.strictEqual(INGREDIENT_SYNONYMS["aubergine"], "eggplant");
 });

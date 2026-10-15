@@ -132,15 +132,31 @@ function mapItem(r) {
 async function addItem(userId, { name, quantity = null, unit = "" }) {
   const listId = await ensureDefaultList(userId);
   const ingredient = await ensureIngredient(name, "other");
-  const [result] = await db.query(
-    "INSERT INTO shopping_list_items (list_id, ingredient_id, quantity, unit, completed) VALUES (?, ?, ?, ?, 0)",
-    [listId, ingredient.ingredient_id, quantity, unit]
+  // Phase 4: merge into an existing OPEN row with the same ingredient+unit
+  // instead of inserting a duplicate line the user then has to reconcile.
+  const [existing] = await db.query(
+    `SELECT item_id, quantity FROM shopping_list_items
+     WHERE list_id = ? AND ingredient_id = ? AND unit = ? AND completed = 0
+     ORDER BY item_id LIMIT 1`,
+    [listId, ingredient.ingredient_id, unit]
   );
+  let itemId;
+  if (existing.length) {
+    itemId = existing[0].item_id;
+    const merged = (Number(existing[0].quantity) || 0) + (Number(quantity) || 0);
+    await db.query("UPDATE shopping_list_items SET quantity = ? WHERE item_id = ?", [merged, itemId]);
+  } else {
+    const [result] = await db.query(
+      "INSERT INTO shopping_list_items (list_id, ingredient_id, quantity, unit, completed) VALUES (?, ?, ?, ?, 0)",
+      [listId, ingredient.ingredient_id, quantity, unit]
+    );
+    itemId = result.insertId;
+  }
   const [rows] = await db.query(
     `SELECT s.item_id, s.quantity, s.unit, s.completed, s.list_id, i.name
      FROM shopping_list_items s JOIN ingredients i ON i.ingredient_id = s.ingredient_id
      WHERE s.item_id = ?`,
-    [result.insertId]
+    [itemId]
   );
   return mapItem(rows[0]);
 }
@@ -202,6 +218,8 @@ async function removeItem(itemId, userId) {
 
 // Replaces the default list with the MISSING ingredients from a meal plan:
 // required (Σ recipe quantities) minus available (pantry), per §30-31.
+// Phase 4: aggregation/deduction/display live in the pure helpers below so
+// unit tests can verify the math without MySQL.
 async function replaceFromRecipes(userId, recipeIds, { subtractPantry = true } = {}) {
   const listId = await ensureDefaultList(userId);
   await db.query("DELETE FROM shopping_list_items WHERE list_id = ?", [listId]);
@@ -217,23 +235,8 @@ async function replaceFromRecipes(userId, recipeIds, { subtractPantry = true } =
     [cleanIds]
   );
 
-  // 1. Aggregate required quantities per ingredient in base units (g / ml / literal).
-  const required = new Map(); // ingredient_id::base -> { ingredient_id, name, category, base, amount }
-  for (const row of rows) {
-    const { base, amount } = toBase(row.quantity, row.unit);
-    const key = `${row.ingredient_id}::${base}`;
-    const entry = required.get(key) || {
-      ingredient_id: row.ingredient_id,
-      name: row.name,
-      category: row.category || "other",
-      base,
-      amount: 0,
-    };
-    entry.amount += amount;
-    required.set(key, entry);
-  }
-
-  // 2. Subtract what the user already has (same ingredient + convertible unit).
+  // 1+2. Aggregate required quantities in base units, then deduct pantry.
+  const required = aggregateRequired(rows);
   if (subtractPantry) {
     let pantry = [];
     try {
@@ -246,24 +249,11 @@ async function replaceFromRecipes(userId, recipeIds, { subtractPantry = true } =
     } catch (err) {
       pantry = [];
     }
-    for (const item of pantry) {
-      const { base, amount } = toBase(item.quantity, item.unit);
-      const key = `${item.ingredient_id}::${base}`;
-      const entry = required.get(key);
-      if (entry) entry.amount = Math.max(0, entry.amount - amount);
-    }
+    applyPantryDeduction(required, pantry);
   }
 
-  // 3. Only missing items (> tiny epsilon) land on the list, prettiest unit first.
-  const values = [];
-  for (const entry of required.values()) {
-    if (entry.amount <= 1e-9) continue; // fully covered by pantry
-    const display = fromBase(entry.amount, entry.base);
-    values.push([listId, entry.ingredient_id, display.quantity, display.unit, entry.category]);
-  }
-  // Deterministic order: category, then ingredient name.
-  values.sort((a, b) => String(a[4]).localeCompare(String(b[4])));
-
+  // 3. Only missing items (> tiny epsilon) land on the list.
+  const values = buildListValues(required, listId);
   if (values.length) {
     for (const [lId, ingredientId, quantity, unit] of values.map((v) => [v[0], v[1], v[2], v[3]])) {
       await db.query(
@@ -273,6 +263,55 @@ async function replaceFromRecipes(userId, recipeIds, { subtractPantry = true } =
     }
   }
   return listItems(userId);
+}
+
+// ---- Phase 4: pure helpers (unit-testable without MySQL) ------------------
+
+// Aggregate recipe ingredient rows into required amounts keyed by
+// ingredient + BASE unit. Convertible units (kg↔g, l↔ml) merge; unknown
+// units keep their literal key so they can never be summed with metric.
+function aggregateRequired(rows) {
+  const required = new Map();
+  for (const row of rows || []) {
+    const { base, amount } = toBase(row.quantity, row.unit);
+    const key = `${row.ingredient_id}::${base}`;
+    const entry = required.get(key) || {
+      ingredient_id: row.ingredient_id,
+      name: row.name,
+      category: row.category || "other",
+      base,
+      amount: 0,
+    };
+    entry.amount += amount;
+    required.set(key, entry);
+  }
+  return required;
+}
+
+// Deduct pantry stock per ingredient+base-unit. Clamped at 0 (§30-31).
+// Pantry rows in a DIFFERENT base (e.g. "1 cup" vs recipe's grams) do not
+// match the key and are correctly NOT deducted — incompatible units must
+// never be silently combined.
+function applyPantryDeduction(required, pantryRows) {
+  for (const item of pantryRows || []) {
+    const { base, amount } = toBase(item.quantity, item.unit);
+    const key = `${item.ingredient_id}::${base}`;
+    const entry = required.get(key);
+    if (entry) entry.amount = Math.max(0, entry.amount - amount);
+  }
+  return required;
+}
+
+// Missing (> epsilon) entries → display rows, deterministic order.
+function buildListValues(required, listId) {
+  const values = [];
+  for (const entry of required.values()) {
+    if (entry.amount <= 1e-9) continue; // fully covered by pantry
+    const display = fromBase(entry.amount, entry.base);
+    values.push([listId, entry.ingredient_id, display.quantity, display.unit, entry.category]);
+  }
+  values.sort((a, b) => String(a[4]).localeCompare(String(b[4])));
+  return values;
 }
 
 module.exports = {
@@ -285,4 +324,7 @@ module.exports = {
   replaceFromRecipes,
   toBase,
   fromBase,
+  aggregateRequired,
+  applyPantryDeduction,
+  buildListValues,
 };

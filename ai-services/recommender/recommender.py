@@ -260,6 +260,8 @@ class Recommender:
                 "score": round(float(score), 4),
                 "pantry_match": round(components["pantry"], 4),
                 "diet_match": round(components["dietary"], 4),
+                # Phase 4: uses an already-expired pantry item → discard warning.
+                "uses_expired": scoring.expired_flag(recipe_ings, expiring),
             })
 
         results.sort(key=lambda r: r["score"], reverse=True)

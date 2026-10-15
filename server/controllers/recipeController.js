@@ -4,6 +4,8 @@ const Favorites = require("../models/Favorites");
 const SearchHistory = require("../models/SearchHistory");
 const Substitution = require("../models/Substitution");
 const recommendationService = require("../services/recommendationService");
+const recipeGenerationService = require("../services/recipeGenerationService");
+const visionService = require("../services/visionService");
 
 const { parse: parseNlp } = require("../utils/nlpSearch");
 const { mergeSearch, applyParsedFilters } = require("../utils/recipeFilters");
@@ -123,14 +125,40 @@ exports.removeFavorite = async (req, res, next) => {
   }
 };
 
-// ✅ POST /api/recipes/substitutions  { ingredients: ["butter", ...] }
+// ✅ POST /api/recipes/substitutions  { ingredients: ["butter", ...], allergies? }
+//    GET  /api/recipes/substitutions?ingredients=...&allergies=...
+// Phase 4: substitutes are filtered against allergens/restrictions. When the
+// caller is authenticated their stored preferences are merged in automatically,
+// so a peanut-allergic user can never be served almond butter as a "safe" swap.
 exports.getSubstitutions = async (req, res, next) => {
   try {
     const names =
       (req.body && req.body.ingredients) ||
       toList(req.query.ingredients) ||
       [];
-    const detailed = await Substitution.getForIngredients(names);
+    // Banned terms: explicit request params + stored prefs (when authed).
+    const explicit = [
+      ...toList(req.body && req.body.allergies),
+      ...toList(req.query.allergies),
+      ...toList(req.body && req.body.exclude),
+      ...toList(req.query.exclude),
+    ];
+    let stored = [];
+    if (req.user) {
+      try {
+        const UserModel = require("../models/user");
+        const prefs = await UserModel.getPreferences(req.user.id);
+        stored = [
+          ...(prefs.allergies || []),
+          ...(prefs.dietaryRestrictions || []),
+          ...(prefs.healthConditions || []),
+        ];
+      } catch (err) {
+        stored = [];
+      }
+    }
+    const banned = [...new Set([...explicit, ...stored])];
+    const detailed = await Substitution.getForIngredients(names, banned);
     // Wire format used by the UI: substitutes is a plain array of names.
     res.json({
       substitutions: detailed.map((entry) => ({
@@ -138,6 +166,7 @@ exports.getSubstitutions = async (req, res, next) => {
         substitutes: entry.substitutes.map((s) => s.name),
         details: entry.substitutes,
       })),
+      filteredBy: banned.length ? banned : undefined,
     });
   } catch (err) {
     next(err);
@@ -156,6 +185,65 @@ exports.getRecipeById = async (req, res, next) => {
       await SearchHistory.recordView(req.user.id, req.params.id);
     }
     res.json({ recipe, isFavorite });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ✅ GET /api/recipes/recommended/contextual?timeOfDay=morning
+//    Context-aware recommendations re-ranked by time-of-day meal fit.
+exports.getContextualRecommended = async (req, res, next) => {
+  try {
+    const timeOfDay = req.query.timeOfDay || null;
+    const limit = Number(req.query.limit) || 12;
+    const recipes = await recommendationService.getContextualRecommended(
+      req.user && req.user.id,
+      limit,
+      timeOfDay
+    );
+    res.json(recipes);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ✅ POST /api/recipes/generate  { ingredients: [...], dietary?, servings? }
+//    LLM-based recipe generation with structured output validation.
+//    Falls back to a local heuristic when no LLM is configured.
+exports.generateRecipe = async (req, res, next) => {
+  try {
+    const { ingredients, dietary, servings } = req.body || {};
+    if (!Array.isArray(ingredients) || !ingredients.length) {
+      return res.status(400).json({ message: "ingredients array is required" });
+    }
+    const result = await recipeGenerationService.generateRecipe(ingredients, {
+      endpoint: process.env.LLM_ENDPOINT,
+      apiKey: process.env.LLM_API_KEY,
+      model: process.env.LLM_MODEL,
+      dietary,
+      servings,
+    });
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ✅ POST /api/recipes/recognize-ingredients  { image, provider?, apiKey?, endpoint?, filename? }
+//    Image-based ingredient recognition with vision API + local fallback.
+exports.recognizeIngredients = async (req, res, next) => {
+  try {
+    const { image, provider, apiKey, endpoint, filename } = req.body || {};
+    if (!image) {
+      return res.status(400).json({ message: "image is required" });
+    }
+    const result = await visionService.recognizeIngredients(image, {
+      provider,
+      apiKey,
+      endpoint,
+      filename,
+    });
+    res.json({ ingredients: result });
   } catch (err) {
     next(err);
   }

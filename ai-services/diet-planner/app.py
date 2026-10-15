@@ -25,21 +25,26 @@ def health():
 def mealplan():
     """
     body  { user_id, calorie_goal, diet_type, allergies[], days }
-    resp  { meals: [{ day, mealType, recipeId }] }  (matches Node contract)
+    resp  { meals: [{ day, mealType, recipeId }], summary: {...} }
+    `meals` is the exact Node contract; `summary` (Phase 4) reports measured
+    totals + estimated-value flags so the 25/35/30/10 rule is never mistaken
+    for a nutritional guarantee. Node ignores unknown fields.
     """
     body = request.get_json(silent=True) or {}
     try:
+        goal = body.get("calorie_goal") or 2000
         meals = planner.generate_plan(
-            calorie_goal=body.get("calorie_goal") or 2000,
+            calorie_goal=goal,
             diet_type=body.get("diet_type"),
             allergies=body.get("allergies") or [],
             days=body.get("days") or 7,
             seed=body.get("seed"),  # optional replayable seed; omit → new plan
         )
+        summary = planner.plan_summary(meals, calorie_goal=goal)
     except Exception as exc:
         print(f"[diet-planner] error: {exc}")
         return jsonify({"error": str(exc)}), 500
-    return jsonify({"meals": meals})
+    return jsonify({"meals": meals, "summary": summary})
 
 
 if __name__ == "__main__":

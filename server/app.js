@@ -10,6 +10,7 @@ const pantryRoutes = require("./routes/pantry");
 const mealPlanRoutes = require("./routes/mealplan");
 const shoppingListRoutes = require("./routes/shoppinglist");
 const userRoutes = require("./routes/user");
+const ratingsRoutes = require("./routes/ratings");
 const { notFound, errorHandler } = require("./middleware/errorHandler");
 const { rateLimit, securityHeaders } = require("./middleware/security");
 
@@ -49,6 +50,7 @@ app.use("/api/pantry", pantryRoutes);
 app.use("/api/mealplan", mealPlanRoutes);
 app.use("/api/shoppinglist", shoppingListRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/recipes", ratingsRoutes);
 
 // ---- Errors ----
 app.use("/api", notFound);

@@ -117,6 +117,10 @@ def expiry_priority(ingredient_names, expiring):
     """
     expiring: [{name, expiry_date}] from the user's pantry (§21).
     Returns up to 1.0 — recipes using items expiring within 3 days get more.
+
+    Phase 4: EXPIRED items (days_left < 0) contribute NOTHING to the boost —
+    encouraging users to cook with spoiled food is unsafe. Use expired_flag()
+    separately to surface a discard warning instead.
     """
     if not expiring or not ingredient_names:
         return 0.0
@@ -140,9 +144,42 @@ def expiry_priority(ingredient_names, expiring):
         except ValueError:
             continue
         days_left = (exp - today).days
+        if days_left < 0:
+            continue  # expired — no "use me" boost (Phase 4 safety fix)
         if days_left <= 3:
-            best = max(best, 1.0 - max(days_left, 0) * 0.25)  # 1.0 today → 0.25 at day 3
+            best = max(best, 1.0 - days_left * 0.25)  # 1.0 today → 0.25 at day 3
     return best
+
+
+def expired_flag(ingredient_names, expiring):
+    """True when a recipe uses at least one ALREADY-EXPIRED pantry item.
+
+    Phase 4: distinct from expiry_priority — the UI should show a discard
+    warning for these, not a "cook me first" badge.
+    """
+    if not expiring or not ingredient_names:
+        return False
+    today = datetime.now().date()
+    recipe_ings = {str(i).strip().lower() for i in ingredient_names}
+    for item in expiring:
+        name = str(item.get("name", "")).strip().lower()
+        if not name:
+            continue
+        matched = name in recipe_ings or any(
+            n.startswith(name) or name.startswith(n) for n in recipe_ings
+        )
+        if not matched:
+            continue
+        raw = item.get("expiry_date") or item.get("expiryDate")
+        if not raw:
+            continue
+        try:
+            exp = date.fromisoformat(str(raw)[:10])
+        except ValueError:
+            continue
+        if (exp - today).days < 0:
+            return True
+    return False
 
 
 def final_score(components, weights=None):
