@@ -40,13 +40,35 @@ exports.addItems = async (req, res, next) => {
   }
 };
 
-// ✅ PATCH /api/shoppinglist/:itemId  { completed }
+// ✅ PATCH /api/shoppinglist/:itemId  { completed, ... }
 exports.updateItem = async (req, res, next) => {
   try {
+    // Strict completed parsing — the string "false" must stay false.
+    let completed;
+    const raw = req.body && req.body.completed;
+    if (raw === undefined) {
+      completed = false;
+    } else if (typeof raw === "boolean") {
+      completed = raw;
+    } else if (raw === 1 || raw === 0) {
+      completed = raw === 1;
+    } else if (typeof raw === "string" && raw.toLowerCase() === "true") {
+      completed = true;
+    } else if (typeof raw === "string" && raw.toLowerCase() === "false") {
+      completed = false;
+    } else {
+      return res.status(400).json({ message: "completed must be a boolean." });
+    }
+    const patch = {};
+    if (req.body && req.body.name !== undefined) patch.name = req.body.name;
+    const qty = req.body && (req.body.amount !== undefined ? req.body.amount : req.body.quantity);
+    if (qty !== undefined) patch.quantity = qty;
+    if (req.body && req.body.unit !== undefined) patch.unit = req.body.unit;
     const item = await ShoppingList.setCompleted(
       req.params.itemId,
       req.user.id,
-      Boolean(req.body && req.body.completed)
+      completed,
+      patch
     );
     if (!item) return res.status(404).json({ message: "Item not found." });
     res.json(item);

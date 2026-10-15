@@ -154,13 +154,31 @@ async function addItems(userId, items = []) {
   return created;
 }
 
-async function setCompleted(itemId, userId, completed) {
+async function setCompleted(itemId, userId, completed, patch = {}) {
+  const sets = ["s.completed = ?"];
+  const params = [completed ? 1 : 0];
+  let ingredientId = null;
+  if (patch.name !== undefined) {
+    const { ensureIngredient } = require("./Ingredient");
+    const ing = await ensureIngredient(patch.name, "other");
+    ingredientId = ing.ingredient_id;
+    sets.push("s.ingredient_id = ?");
+    params.push(ingredientId);
+  }
+  if (patch.quantity !== undefined) {
+    sets.push("s.quantity = ?");
+    params.push(patch.quantity === "" || patch.quantity === null ? null : Number(patch.quantity));
+  }
+  if (patch.unit !== undefined) {
+    sets.push("s.unit = ?");
+    params.push(String(patch.unit || ""));
+  }
   const [result] = await db.query(
     `UPDATE shopping_list_items s
      JOIN shopping_lists l ON l.list_id = s.list_id
-     SET s.completed = ?
+     SET ${sets.join(", ")}
      WHERE s.item_id = ? AND l.user_id = ?`,
-    [completed ? 1 : 0, itemId, userId]
+    [...params, itemId, userId]
   );
   if (!result.affectedRows) return null;
   const [rows] = await db.query(

@@ -19,31 +19,62 @@ function ProfileClean() {
 
   const [form, setForm] = useState(profile);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState('');
 
   // Re-seed the form whenever the identity (account) changes.
-  useEffect(() => { setForm(profile); setSaved(false); /* eslint-disable-next-line */ }, [profile.email]);
+  useEffect(() => { setForm(profile); setSaved(false); setError(''); /* eslint-disable-next-line */ }, [profile.email]);
 
-  const set = (patch) => { setForm((f) => ({ ...f, ...patch })); setSaved(false); };
+  const set = (patch) => { setForm((f) => ({ ...f, ...patch })); setSaved(false); setError(''); };
   const toggleIn = (key, value) =>
     setForm((f) => ({ ...f, [key]: f[key].includes(value) ? f[key].filter((x) => x !== value) : [...f[key], value] }));
 
-  const save = (e) => {
+  // Client-side mirror of the server rules (UX only — the server re-checks
+  // everything, since the React interface can be bypassed).
+  const validateForm = () => {
+    const name = String(form.name || '').trim();
+    if (name.length < 2 || name.length > 80) return 'Display name must be 2-80 characters.';
+    if (form.calories !== '' && form.calories !== undefined && form.calories !== null) {
+      const n = Number(form.calories);
+      if (!Number.isFinite(n) || n < 500 || n > 10000) return 'Calorie goal must be 500-10000 kcal.';
+    }
+    return '';
+  };
+
+  const save = async (e) => {
     e.preventDefault();
+    const problem = validateForm();
+    if (problem) { setError(problem); setSaved(false); return; }
+    setError('');
     updateProfile({ ...form });
-    setSaved(true);
-    // Best-effort persistence to the backend (silently ignored when not authed/mock).
-    fetch('/api/users/profile', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        dietaryRestrictions: [form.diet].filter(Boolean),
-        allergies: form.allergies,
-        conditions: form.conditions,
-        skill: form.skill,
-        calories: form.calories,
-        name: form.name,
-      }),
-    }).catch(() => { /* offline/mock — local store already updated */ });
+    // Persist to the backend with the auth token (server is authoritative).
+    try {
+      const stored = JSON.parse(localStorage.getItem('recipeSuggester.user') || 'null');
+      const token = stored && stored.token;
+      const res = await fetch('/api/users/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          dietaryRestrictions: [form.diet].filter(Boolean),
+          allergies: form.allergies,
+          conditions: form.conditions,
+          skill: form.skill,
+          calories: form.calories,
+          name: String(form.name || '').trim(),
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.message || 'Could not save to the server.');
+        setSaved(false);
+        return;
+      }
+      setSaved(true);
+    } catch {
+      setSaved(true); // offline/mock — local store already updated
+    }
   };
 
   const signOut = () => { logout(); navigate('/login'); };
@@ -150,8 +181,9 @@ function ProfileClean() {
 
           <div className="pf-actions" style={{ marginTop: 26 }}>
             <button type="submit" className="pl-btn">Save Changes</button>
-            <button type="button" className="pl-btn pl-btn-dark" onClick={() => { setForm(profile); setSaved(false); }}>Reset</button>
-            {saved && <span className="pf-saved">✓ Saved &amp; applied across PantryPal</span>}
+            <button type="button" className="pl-btn pl-btn-dark" onClick={() => { setForm(profile); setSaved(false); setError(''); }}>Reset</button>
+            {error && <span className="pf-saved" style={{ color: '#c0392b' }}>⚠ {error}</span>}
+            {!error && saved && <span className="pf-saved">✓ Saved &amp; applied across PantryPal</span>}
           </div>
         </form>
         {/* SUMMARY_CARD */}

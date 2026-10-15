@@ -14,16 +14,23 @@ function extractToken(req) {
 }
 
 // Requires a valid token — 401 otherwise.
+// Distinguishes expired vs malformed tokens so clients can react correctly.
 function requireAuth(req, res, next) {
   const token = extractToken(req);
   if (!token) return res.status(401).json({ message: "Sign in to continue." });
   try {
     const payload = verifyToken(token);
+    if (!payload || !payload.userId) {
+      return res.status(401).json({ message: "Your session is invalid. Please sign in again." });
+    }
     req.user = { id: payload.userId };
     req.token = token;
     next();
   } catch (err) {
-    return res.status(401).json({ message: "Your session has expired. Please sign in again." });
+    if (err && err.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Your session has expired. Please sign in again.", expired: true });
+    }
+    return res.status(401).json({ message: "Your session is invalid. Please sign in again." });
   }
 }
 

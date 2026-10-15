@@ -11,17 +11,24 @@ const mealPlanRoutes = require("./routes/mealplan");
 const shoppingListRoutes = require("./routes/shoppinglist");
 const userRoutes = require("./routes/user");
 const { notFound, errorHandler } = require("./middleware/errorHandler");
+const { rateLimit, securityHeaders } = require("./middleware/security");
 
 const app = express();
+app.set("trust proxy", 1);
 
 // ---- Global middleware ----
+app.use(securityHeaders);
 app.use(
   cors({
     origin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
     credentials: true,
   })
 );
-app.use(express.json({ limit: "1mb" }));
+// Sensible request-size limits (Phase 2: API protection).
+app.use(express.json({ limit: "200kb" }));
+app.use(express.urlencoded({ extended: false, limit: "200kb" }));
+// Global rate cap — auth routes add a stricter per-route limiter.
+app.use(rateLimit({ windowMs: 60 * 1000, max: 300 }));
 
 // Tiny request logger (keeps the console useful during development).
 app.use((req, res, next) => {
