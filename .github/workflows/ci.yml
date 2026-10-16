@@ -13,11 +13,11 @@ jobs:
       mysql:
         image: mysql:8
         env:
-          MYSQL_ROOT_PASSWORD: ""
+          MYSQL_ROOT_PASSWORD: "root"
           MYSQL_DATABASE: recipe_db
         ports: ["3306:3306"]
         options: >-
-          --health-cmd "mysqladmin ping -h localhost -u root --password=''"
+          --health-cmd "mysqladmin ping -h localhost -u root --password='root'"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
@@ -48,7 +48,7 @@ jobs:
         env:
           DB_HOST: localhost
           DB_USER: root
-          DB_PASS: ""
+          DB_PASS: "root"
           DB_NAME: recipe_db
           DB_PORT: 3306
         continue-on-error: true
