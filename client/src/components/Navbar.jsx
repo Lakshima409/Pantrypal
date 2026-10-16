@@ -8,6 +8,7 @@ const LINKS = [
   { to: '/mealplan', label: 'Diet Plan', match: ['/mealplan'] },
   { to: '/shopping-list', label: 'Shopping List', match: ['/shopping-list'] },
   { to: '/profile', label: 'Profile', match: ['/profile'] },
+  { to: '/pantry', label: 'My Pantry', match: ['/pantry'] },
 ];
 
 function Navbar() {

@@ -14,6 +14,7 @@ import FavoritesClean from './pages/FavoritesClean';
 import ProfileClean from './pages/ProfileClean';
 import CompleteProfile from './pages/CompleteProfile';
 import RecipeGenerator from './pages/RecipeGenerator';
+import Pantry from './pages/Pantry';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import RegisterStep1 from './pages/RegisterStep1';
@@ -34,6 +35,7 @@ function App() {
           <Route path="/shopping-list" element={<ShoppingListClean />} />
           <Route path="/favorites" element={<FavoritesClean />} />
           <Route path="/profile" element={<ProfileClean />} />
+          <Route path="/pantry" element={<Pantry />} />
         </Route>
 
         {/* Recipe Generator — standalone page with its own navbar + footer */}

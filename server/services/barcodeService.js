@@ -31,6 +31,9 @@ function asNumberOrNull(value) {
  * @param {string} barcode - validated barcode
  * @returns {Promise<{found: boolean, product?: object, error?: string, status?: number}>}
  */
+const MAX_RETRIES = 2;
+const RETRY_BACKOFF_MS = 500;
+
 async function lookupProduct(barcode) {
   if (!isValidBarcode(barcode)) {
     return { found: false, error: "invalid_barcode" };
@@ -38,41 +41,72 @@ async function lookupProduct(barcode) {
 
   const code = String(barcode).trim();
   const url = `${OPENFOODFACTS_BASE}/${code}?fields=code,product_name,brands,quantity,ingredients_text,nutriments,image_front_url`;
+  let lastError = null;
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
-  try {
-    const res = await fetch(url, {
-      signal: controller.signal,
-      headers: {
-        "User-Agent": USER_AGENT,
-        Accept: "application/json",
-      },
-    });
-    clearTimeout(timer);
+    try {
+      const res = await fetch(url, {
+        signal: controller.signal,
+        headers: {
+          "User-Agent": USER_AGENT,
+          Accept: "application/json",
+        },
+      });
+      clearTimeout(timer);
 
-    if (!res.ok) {
-      // Upstream HTTP error (5xx, 429, etc.) — never leak internals.
-      return { found: false, error: "upstream_error", status: res.status };
+      if (!res.ok) {
+        // 4xx client errors are not retryable; 5xx may be transient.
+        lastError = { error: "upstream_error", status: res.status };
+        if (res.status >= 400 && res.status < 500) {
+          return { found: false, error: "upstream_error", status: res.status };
+        }
+        if (attempt < MAX_RETRIES) {
+          await sleep(RETRY_BACKOFF_MS * (attempt + 1));
+          continue;
+        }
+        return { found: false, error: "upstream_error", status: res.status };
+      }
+
+      const data = await res.json();
+
+      // Open Food Facts v3: status 1 = found, status 0 = not found.
+      if (data.status === 0 || !data.product) {
+        return { found: false, error: "not_found" };
+      }
+
+      return { found: true, product: normalizeProduct(data.product, code) };
+    } catch (err) {
+      clearTimeout(timer);
+      lastError = err;
+
+      if (err.name === "AbortError") {
+        if (attempt < MAX_RETRIES) {
+          await sleep(RETRY_BACKOFF_MS * (attempt + 1));
+          continue;
+        }
+        return { found: false, error: "timeout" };
+      }
+
+      // Network failure, DNS error, etc. — retry with backoff.
+      if (attempt < MAX_RETRIES) {
+        await sleep(RETRY_BACKOFF_MS * (attempt + 1));
+        continue;
+      }
+      return { found: false, error: "upstream_error" };
     }
-
-    const data = await res.json();
-
-    // Open Food Facts v3: status 1 = found, status 0 = not found.
-    if (data.status === 0 || !data.product) {
-      return { found: false, error: "not_found" };
-    }
-
-    return { found: true, product: normalizeProduct(data.product, code) };
-  } catch (err) {
-    clearTimeout(timer);
-    if (err.name === "AbortError") {
-      return { found: false, error: "timeout" };
-    }
-    // Network failure, DNS error, malformed JSON, etc.
-    return { found: false, error: "upstream_error" };
   }
+
+  return {
+    found: false,
+    error: lastError?.name === "AbortError" ? "timeout" : "upstream_error",
+  };
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**

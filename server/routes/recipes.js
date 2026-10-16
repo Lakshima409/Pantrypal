@@ -21,11 +21,7 @@ router.post("/recognize-ingredients", optionalAuth, recipeController.recognizeIn
 router.post("/:id/favorite", requireAuth, vx.idParam("id"), recipeController.addFavorite);
 router.delete("/:id/favorite", requireAuth, vx.idParam("id"), recipeController.removeFavorite);
 
-// Phase 5: recipe ratings & feedback.
-router.post("/:id/rate", requireAuth, vx.idParam("id"), vx.rateRecipe, recipeController.rateRecipe);
-router.get("/:id/ratings", optionalAuth, vx.idParam("id"), recipeController.listRatings);
-router.get("/:id/my-rating", optionalAuth, vx.idParam("id"), recipeController.getMyRating);
-router.delete("/:id/rate", requireAuth, vx.idParam("id"), recipeController.removeRating);
+// Phase 5: recipe ratings & feedback (handled by ratingsRoutes).
 
 router.get("/:id", optionalAuth, vx.idParam("id"), recipeController.getRecipeById);
 

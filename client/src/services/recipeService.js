@@ -10,11 +10,11 @@ export async function searchRecipes(params = {}) {
 }
 
 export async function fetchRecommended() {
-  return api.get('/api/recipes/recommended');
+  return api.get('/recipes/recommended');
 }
 
 export async function fetchTrending() {
-  return api.get('/api/recipes/trending');
+  return api.get('/recipes/trending');
 }
 
 export async function fetchRecipeById(id) {
@@ -22,7 +22,7 @@ export async function fetchRecipeById(id) {
 }
 
 export async function fetchSubstitutions(ingredients = []) {
-  return api.post('/api/recipes/substitutions', { ingredients });
+  return api.post('/recipes/substitutions', { ingredients });
 }
 
 export default {

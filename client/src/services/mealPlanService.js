@@ -5,7 +5,7 @@ export async function fetchMealPlan(week = 0) {
 }
 
 export async function addMealToPlan(recipeId, day) {
-  return api.post('/api/mealplan', { recipeId, day });
+  return api.post('/mealplan', { recipeId, day });
 }
 
 export async function removeMealFromPlan(mealId) {
@@ -13,7 +13,7 @@ export async function removeMealFromPlan(mealId) {
 }
 
 export async function generateMealPlan(payload = {}) {
-  return api.post('/api/mealplan/generate', payload);
+  return api.post('/mealplan/generate', payload);
 }
 
 export default { fetchMealPlan, addMealToPlan, removeMealFromPlan, generateMealPlan };
