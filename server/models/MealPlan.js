@@ -111,10 +111,10 @@ async function weekNutrition(userId, offset = 0) {
 }
 
 // Replaces the whole week with new meal rows: [{ day, recipeId, mealType }]
+// Phase 2 data integrity: DELETE + bulk INSERT wrapped in a transaction.
 async function replaceWeek(userId, meals, offset = 0) {
   const start = weekStart(offset);
   const planId = await getOrCreatePlan(userId, start);
-  await db.query("DELETE FROM diet_plan_meals WHERE plan_id = ?", [planId]);
   const rows = meals
     .map(({ day, recipeId, mealType }) => {
       const dayIndex = DAY_NAMES.findIndex((d) => d.toLowerCase() === String(day).toLowerCase());
@@ -125,11 +125,22 @@ async function replaceWeek(userId, meals, offset = 0) {
       return dayIndex >= 0 && Number.isFinite(rid) ? [planId, dayIndex + 1, rid, cleanType] : null;
     })
     .filter(Boolean);
-  if (rows.length) {
-    await db.query(
-      "INSERT INTO diet_plan_meals (plan_id, day_of_week, recipe_id, meal_type) VALUES ?",
-      [rows]
-    );
+  const conn = await db.getConnection();
+  try {
+    await conn.beginTransaction();
+    await conn.query("DELETE FROM diet_plan_meals WHERE plan_id = ?", [planId]);
+    if (rows.length) {
+      await conn.query(
+        "INSERT INTO diet_plan_meals (plan_id, day_of_week, recipe_id, meal_type) VALUES ?",
+        [rows]
+      );
+    }
+    await conn.commit();
+  } catch (err) {
+    await conn.rollback();
+    throw err;
+  } finally {
+    conn.release();
   }
   return getWeek(userId, offset);
 }

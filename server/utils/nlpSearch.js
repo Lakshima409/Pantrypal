@@ -19,6 +19,9 @@ const DIET_TAGS = {
   lowcarb: 'low-carb', glutenfree: 'gluten-free', dairyfree: 'dairy-free',
   nutfree: 'nut-free', halal: 'halal', pescatarian: 'pescatarian', pescetarian: 'pescatarian',
   highprotein: 'high-protein', mediterranean: 'mediterranean', lowsodium: 'low-sodium',
+  // Phase 5 additions: common synonyms / alternate spellings
+  dairy_free: 'dairy-free', gluten_free: 'gluten-free', nut_free: 'nut-free',
+  low_carb: 'low-carb', high_protein: 'high-protein', low_sodium: 'low-sodium',
 };
 
 const CUISINES = {
@@ -33,7 +36,36 @@ const MEALS = {
   breakfast: 'breakfast', brunch: 'brunch', lunch: 'lunch', dinner: 'dinner',
   supper: 'dinner', snack: 'snack', snacks: 'snack', dessert: 'dessert', desserts: 'dessert',
   appetizer: 'appetizer', appetizers: 'appetizer', starter: 'appetizer', starters: 'appetizer',
+  // Phase 5: time-of-day hints that map to meal types
+  morning: 'breakfast', midday: 'lunch', evening: 'dinner', night: 'dinner',
+  'late night': 'snack', suppertime: 'dinner',
 };
+
+// Canonical ingredient synonyms — user terms -> normalized ingredient names
+// used for matching against recipe ingredient names and pantry items.
+const INGREDIENT_SYNONYMS = {
+  // herbs & spices
+  cilantro: 'coriander', coriander: 'coriander',
+  aubergine: 'eggplant', eggplant: 'eggplant',
+  courgette: 'zucchini', zucchini: 'zucchini',
+  capsicum: 'bell pepper', bellpepper: 'bell pepper', bell_pepper: 'bell pepper',
+  scallion: 'spring onion', springonion: 'spring onion', spring_onion: 'spring onion',
+  chilli: 'chili', chili: 'chili',
+  // dairy / alternatives
+  yoghurt: 'yogurt', yogurt: 'yogurt',
+  // proteins / meats
+  mince: 'ground beef', groundbeef: 'ground beef', ground_beef: 'ground beef',
+  chickenbreast: 'chicken breast', chicken_breast: 'chicken breast',
+  // produce
+  arugula: 'rocket', rocket: 'rocket',
+};
+
+// Reverse lookup: normalized ingredient -> synonyms (for query expansion)
+const SYNONYM_EXPANSIONS = {};
+for (const [alias, canonical] of Object.entries(INGREDIENT_SYNONYMS)) {
+  if (!SYNONYM_EXPANSIONS[canonical]) SYNONYM_EXPANSIONS[canonical] = [];
+  SYNONYM_EXPANSIONS[canonical].push(alias);
+}
 
 const FREE_EXPANSIONS = {
   dairyfree: ['milk', 'cheese', 'butter', 'cream', 'yogurt', 'yoghurt', 'ghee'],
@@ -47,7 +79,7 @@ function parse(text) {
   const out = { query: '', dietary: [], ingredients: [], exclude: [], maxCalories: null, maxTime: null, meal: null, cuisine: null, raw: String(text || '') };
   const raw = String(text || '').toLowerCase();
   if (!raw.trim()) return out;
-  let work = ` ${raw.replace(/[^a-z0-9\s\-<>,]/g, ' ')} `;
+  let work = ` ${raw.replace(/[^a-z0-9\s\-<>,_]/g, ' ')} `;
   const dietSet = new Set();
 
   let m = work.match(/(?:under|below|less\s+than|max|maximum|up\s+to)\s*(\d+)\s*(?:cal|cals|calorie|calories|kcal)\b/) || work.match(/<\s*(\d+)\s*(?:cal|kcal)?\b/);
@@ -85,6 +117,14 @@ function parse(text) {
   }
 
   const tokens = work.split(/\s+/).map((t) => t.trim()).filter(Boolean);
+  // Phase 5: match multi-word meal hints (e.g. "late night") before single tokens.
+  const MULTI_WORD_MEALS = { "late night": "snack", "supper time": "dinner" };
+  for (const [phrase, meal] of Object.entries(MULTI_WORD_MEALS)) {
+    if (work.includes(` ${phrase} `)) {
+      out.meal = out.meal || meal;
+      dietSet.add(meal);
+    }
+  }
   const used = new Set();
   tokens.forEach((t, i) => {
     const n = norm(t);
@@ -102,11 +142,41 @@ function parse(text) {
     return true;
   });
   const seen = new Set();
-  out.ingredients = leftovers.map((t) => t.toLowerCase()).filter((t) => (seen.has(t) ? false : (seen.add(t), true))).slice(0, 6);
+  // Phase 5: expand ingredient synonyms so "courgette" matches "zucchini" recipes.
+  const expanded = [];
+  for (const t of leftovers) {
+    const n = norm(t);
+    expanded.push(t);
+    if (INGREDIENT_SYNONYMS[n]) expanded.push(INGREDIENT_SYNONYMS[n]);
+  }
+  out.ingredients = expanded.map((t) => t.toLowerCase()).filter((t) => (seen.has(t) ? false : (seen.add(t), true))).slice(0, 6);
   out.query = out.ingredients.slice(0, 4).join(' ');
   out.dietary = [...dietSet];
   out.exclude = [...new Set(out.exclude)].slice(0, 12);
   return out;
 }
 
-module.exports = { parse };
+/**
+ * Expand a user-supplied ingredient list with synonyms so that e.g. ["courgette"]
+ * also matches recipes containing "zucchini". Returns a de-duplicated array.
+ * @param {string[]} ingredients
+ * @returns {string[]}
+ */
+function expandIngredients(ingredients) {
+  const seen = new Set();
+  const out = [];
+  for (const ing of (ingredients || [])) {
+    const n = norm(ing);
+    if (!n || seen.has(n)) continue;
+    seen.add(n);
+    out.push(ing);
+    const canon = INGREDIENT_SYNONYMS[n];
+    if (canon) {
+      const cn = norm(canon);
+      if (!seen.has(cn)) { seen.add(cn); out.push(canon); }
+    }
+  }
+  return out;
+}
+
+module.exports = { parse, expandIngredients, INGREDIENT_SYNONYMS };

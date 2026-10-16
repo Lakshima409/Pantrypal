@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [main, Phases]
+  pull_request:
+    branches: [main, Phases]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: ""
+          MYSQL_DATABASE: recipe_db
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd "mysqladmin ping -h localhost -u root --password=''"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ---- Server (Node) ----
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install server dependencies
+        run: npm ci
+        working-directory: server
+
+      - name: Run server unit tests (offline, no MySQL required)
+        run: npm test
+        working-directory: server
+
+      - name: Run server integration tests against live MySQL (best-effort)
+        run: npm test
+        working-directory: server
+        env:
+          DB_HOST: localhost
+          DB_USER: root
+          DB_PASS: ""
+          DB_NAME: recipe_db
+          DB_PORT: 3306
+        continue-on-error: true
+
+      # ---- Client (React + Vite) ----
+      - name: Setup Node (client)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install client dependencies
+        run: npm ci
+        working-directory: client
+
+      - name: Lint client
+        run: npm run lint
+        working-directory: client
+
+      - name: Build client
+        run: npm run build
+        working-directory: client
+
+      # ---- Python AI services ----
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install and test diet-planner
+        run: |
+          pip install -r requirements.txt
+          python -m pytest
+        working-directory: ai-services/diet-planner
+
+      - name: Install and test recommender
+        run: |
+          pip install -r requirements.txt
+          python -m pytest
+        working-directory: ai-services/recommender

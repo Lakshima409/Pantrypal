@@ -109,15 +109,27 @@ async function savePreferences(userId, prefs) {
     "cookTime", "difficulty", "householdSize", "cookingFrequency",
     "calorieMin", "calorieMax", "allergy", "diet", "healthCondition",
   ];
-  await db.query(
-    "DELETE FROM dietary_preferences WHERE user_id = ? AND preference_type IN (?)",
-    [userId, managedTypes]
-  );
-  if (entries.length) {
-    await db.query(
-      "INSERT INTO dietary_preferences (user_id, preference_type, preference_value) VALUES ?",
-      [entries.map(([type, value]) => [userId, type, value])]
+  // Phase 2 data integrity: DELETE + INSERT must be atomic — a crash between
+  // them must not wipe the user's preferences. Parameterised + transactional.
+  const conn = await db.getConnection();
+  try {
+    await conn.beginTransaction();
+    await conn.query(
+      "DELETE FROM dietary_preferences WHERE user_id = ? AND preference_type IN (?)",
+      [userId, managedTypes]
     );
+    if (entries.length) {
+      await conn.query(
+        "INSERT INTO dietary_preferences (user_id, preference_type, preference_value) VALUES ?",
+        [entries.map(([type, value]) => [userId, type, value])]
+      );
+    }
+    await conn.commit();
+  } catch (err) {
+    await conn.rollback();
+    throw err;
+  } finally {
+    conn.release();
   }
   return getPreferences(userId);
 }

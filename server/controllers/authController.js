@@ -9,11 +9,12 @@ const { sendResetEmail } = require("../utils/email");
 const COOKIE_MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 function setAuthCookie(res, token) {
+  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
   res.append(
     "Set-Cookie",
     `pantry_token=${encodeURIComponent(token)}; HttpOnly; Path=/; Max-Age=${Math.floor(
       COOKIE_MAX_AGE / 1000
-    )}; SameSite=Lax`
+    )}; SameSite=Lax${secure}`
   );
 }
 
@@ -63,25 +64,25 @@ exports.getMe = async (req, res) => {
 };
 
 // ✅ POST /api/auth/forgot-password
+// Uniform response whether or not the address exists (anti-enumeration).
 exports.forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
     if (!email) return res.status(400).json({ message: "Email is required." });
 
     const user = await UserModel.findByEmail(email);
-    // Do not reveal whether the address exists.
-    if (!user) return res.json({ message: "If that account exists, a reset link was sent." });
-
-    const token = crypto.randomBytes(32).toString("hex");
-    const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-    await db.query("UPDATE users SET reset_token = ?, reset_expires = ? WHERE user_id = ?", [
-      token,
-      expires,
-      user.user_id,
-    ]);
-
-    await sendResetEmail(email, token);
-    res.json({ message: "Password reset email sent." });
+    if (user) {
+      const token = crypto.randomBytes(32).toString("hex");
+      const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+      await db.query("UPDATE users SET reset_token = ?, reset_expires = ? WHERE user_id = ?", [
+        token,
+        expires,
+        user.user_id,
+      ]);
+      await sendResetEmail(email, token);
+    }
+    // Same message either way — never reveal whether the address exists.
+    res.json({ message: "If that account exists, a reset link was sent." });
   } catch (err) {
     next(err);
   }

@@ -16,6 +16,72 @@ const AI_TIMEOUT_MS = 1800;
 // Score weights (blueprint §24 — tunable starting point, not report-mandated).
 const WEIGHTS = { pantryMatch: 0.45, dietaryMatch: 0.25, popularity: 0.20, recency: 0.10 };
 
+// Meal-type hints derived from time of day (§31 — context-aware recommendations).
+// Used to re-rank results so the right meal is surfaced at the right time.
+const TIME_OF_DAY_MEALS = {
+  morning: ["breakfast", "brunch"],
+  midday: ["lunch", "brunch"],
+  afternoon: ["lunch", "snack"],
+  evening: ["dinner", "supper"],
+  night: ["dinner", "snack"],
+  "late night": ["snack", "dessert"],
+  suppertime: ["dinner", "supper"],
+};
+
+const MEAL_TAGS = new Set([
+  "breakfast",
+  "brunch",
+  "lunch",
+  "dinner",
+  "supper",
+  "snack",
+  "dessert",
+]);
+
+function mealTypeFor(timeOfDay) {
+  const key = norm(timeOfDay);
+  return TIME_OF_DAY_MEALS[key] || null;
+}
+
+function recipeMealTypes(recipe) {
+  const tags = new Set();
+  for (const t of recipe.tags || []) {
+    const nt = norm(t);
+    if (MEAL_TAGS.has(nt)) tags.add(nt);
+  }
+  // Fallback: infer from name if no tags.
+  const name = norm(recipe.name || recipe.title || "");
+  const mealWords = ["breakfast", "brunch", "lunch", "dinner", "supper", "snack", "dessert"];
+  for (const m of mealWords) if (name.includes(m)) tags.add(m);
+  return tags;
+}
+
+/**
+ * Rerank recipes so those matching the current meal context come first.
+ * Adds a contextMatch (0–1) and contextualScore to each recipe without
+ * mutating the original objects. Stable sort preserves relative order
+ * among equal-scoring items.
+ */
+function contextualRerank(recipes, timeOfDay) {
+  const targetMeals = mealTypeFor(timeOfDay);
+  if (!targetMeals || !recipes.length) return recipes.map((r) => ({ ...r, contextMatch: 0, contextualScore: r.score }));
+
+  const targetSet = new Set(targetMeals.map(norm));
+  return recipes.map((recipe) => {
+    const r = { ...recipe };
+    const rMeals = recipeMealTypes(recipe);
+    let contextMatch = 0;
+    if (rMeals.size) {
+      const hits = [...rMeals].filter((m) => targetSet.has(m)).length;
+      contextMatch = hits / Math.max(targetSet.size, 1);
+    }
+    // Blend context into score: 70% base score + 30% context match.
+    r.contextMatch = round3(contextMatch);
+    r.contextualScore = round3(0.7 * Number(r.score || 0) + 0.3 * contextMatch);
+    return r;
+  }).sort((a, b) => b.contextualScore - a.contextualScore);
+}
+
 async function callAiRecommender(payload) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
@@ -192,4 +258,27 @@ async function getRecommendationContext(userId) {
   }
 }
 
-module.exports = { getRecommended, getRecommendationContext, callAiRecommender, pantryMatch, dietaryMatch };
+/**
+ * Context-aware recommendations: fetches the standard recommendation list
+ * then re-ranks it by time-of-day / meal-type fit.
+ *
+ * @param {number|string|null} userId
+ * @param {number} limit
+ * @param {string|null} timeOfDay e.g. "morning", "midday", "evening", "night"
+ * @returns {Promise<Array>} recipes with { contextMatch, contextualScore }
+ */
+async function getContextualRecommended(userId, limit = 12, timeOfDay = null) {
+  const recipes = await getRecommended(userId, limit);
+  return contextualRerank(recipes, timeOfDay);
+}
+
+module.exports = {
+  getRecommended,
+  getContextualRecommended,
+  getRecommendationContext,
+  callAiRecommender,
+  pantryMatch,
+  dietaryMatch,
+  contextualRerank,
+  mealTypeFor,
+};
