@@ -8,6 +8,10 @@ node_modules/
 dist/
 npm-debug.log*
 
+# Service logs (runtime artifacts)
+*.err
+*.log
+
 # Python
 __pycache__/
 *.pyc
