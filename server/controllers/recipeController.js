@@ -182,7 +182,13 @@ exports.getRecipeById = async (req, res, next) => {
     let isFavorite = false;
     if (req.user) {
       isFavorite = await Favorites.has(req.user.id, req.params.id);
-      await SearchHistory.recordView(req.user.id, req.params.id);
+      // Record the view best-effort: a missing/invalid user row must never
+      // break the recipe detail page (FK constraint on interactions.user_id).
+      try {
+        await SearchHistory.recordView(req.user.id, req.params.id);
+      } catch (err) {
+        console.warn("[recipe] view log skipped:", err.message);
+      }
     }
     res.json({ recipe, isFavorite });
   } catch (err) {

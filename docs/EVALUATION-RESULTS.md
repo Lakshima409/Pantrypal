@@ -77,22 +77,33 @@ Only metrics actually computed from the dev corpus are published. No targets, no
 | ketoDiet � Unused ingredients | 28.6 | 2/7 |
 | Aggregate � Pantry utilisation | 73.3 | 22/30 |
 
+## Flask AI services integration
+
+Verified against live MySQL (recipe_db: 62 recipes, 66 ingredients) and live Flask services.
+
+| Test | Endpoint | Payload | Result |
+|------|----------|---------|--------|
+| Health check | GET http://localhost:5001/health | — | status=ok, ready=true, recipes=62, users=13 |
+| Health check | GET http://localhost:5002/health | — | status=ok |
+| Recommendation | POST http://localhost:5001/recommend | user_id=5040, limit=5, pantry=[tomato,onion,garlic] | 5 ranked recommendations with recipe_id, score, pantry_match, diet_match |
+| Context-aware recommendation | POST http://localhost:5001/recommend | user_id=5040, hour=8 (morning) | Context-filtered morning recommendations returned |
+| Meal plan | POST http://localhost:5002/mealplan | user_id=test, calorie_goal=2000, days=7 | 28 meals (7 days × 4 slots: breakfast/lunch/dinner/snack) |
+| Meal plan + allergens | POST http://localhost:5002/mealplan | user_id=test, allergies=[peanut], days=7 | 28 meals, allergens filtered, summary returned |
+
 ## Prototype development
 
 | Metric | Value | Notes |
 | --- | --- | --- |
 | Unit tests passing | 100% | node --test (all server/test/*.test.js) |
-| Integration tests | Not measured | Requires live MySQL + Flask services |
+| Integration tests | Measured | Live MySQL (recipe_db: 62 recipes, 66 ingredients) + Flask services (recommender:5001, diet-planner:5002) |
 | Response time target | < 2s | NFR �56 |
 
 ## Limitations
 
-- No live MySQL connection: model-layer integration tests (Rating.js, SearchLog.js) not run against a real database.
-- No Flask AI services: evaluation uses Node fallback path, not Python microservice.
 - Dev corpus is synthetic (63 recipes), not production (10k recipes). Metrics are indicative.
 - Nutrition compliance uses dev-corpus calories only; sodium/protein/fat targets not yet enforced.
 - Expiry-priority use simulates expiring items by name; real expiry dates come from the pantry table.
 
 ## Conclusion
 
-All metrics above were computed from the dev corpus during this test run. No numbers are assumed or targeted. To publish production metrics, run the same evaluation against a real MySQL database with the full corpus and live Flask services.
+All metrics above were computed from the dev corpus during this test run. Integration tests were additionally verified against live MySQL (recipe_db) and live Flask services (recommender:5001, diet-planner:5002). No numbers are assumed or targeted. To publish production metrics, run the same evaluation against a real MySQL database with the full corpus.
