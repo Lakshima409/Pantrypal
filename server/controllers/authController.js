@@ -29,11 +29,18 @@ exports.registerUser = async (req, res, next) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await UserModel.create({ name: String(name).trim(), email, passwordHash });
+    if (!user || (!user.user_id && !user.id)) {
+      // DB insert did not return a row (e.g. schema mismatch) — surface as
+      // 500 with context server-side instead of crashing in signToken.
+      throw new Error("User creation did not return a row — check `users` table shape.");
+    }
     const token = signToken(user);
 
     setAuthCookie(res, token);
     res.status(201).json({ user: UserModel.toPublic(user), token });
   } catch (err) {
+    // Log SQL context server-side (errorHandler hides it from the client).
+    console.error("[register] failed:", err && err.code ? `${err.code}: ${err.sqlMessage || err.message}` : err);
     next(err);
   }
 };

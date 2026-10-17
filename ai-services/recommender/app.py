@@ -4,12 +4,15 @@
 import os
 
 from flask import Flask, jsonify, request
+import os
 
-from recommender import Recommender
+from recommender import Recommender, USE_PICKLE
 
 app = Flask(__name__)
 model = Recommender()
-model.start_refresh_loop()
+# Only start the MySQL refresh loop when NOT running from a pickled model.
+if not USE_PICKLE:
+    model.start_refresh_loop()
 
 
 @app.get("/health")

@@ -46,9 +46,15 @@ function RegisterStep3() {
   const [loading, setLoading] = useState(false);
   const toggle = (list, setList) => (item) =>
     setList(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
+  const missingCredentials = !email || !fullName || !password;
 
   const handleFinish = async (e) => {
     e.preventDefault();
+    if (missingCredentials) {
+      setError('Your registration details expired. Please start again from step 1.');
+      navigate('/register/step1');
+      return;
+    }
     try {
       setLoading(true);
       setError('');

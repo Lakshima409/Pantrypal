@@ -1,4 +1,5 @@
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
+SET FOREIGN_KEY_CHECKS=0;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `dietary_preferences` (
   `preference_id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -8,7 +9,7 @@ CREATE TABLE `dietary_preferences` (
   PRIMARY KEY (`preference_id`),
   UNIQUE KEY `uq_dietary_preference` (`user_id`,`preference_type`,`preference_value`),
   CONSTRAINT `fk_dietary_preferences_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=18025 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=18025 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -31,7 +32,7 @@ CREATE TABLE `ingredients` (
   UNIQUE KEY `uq_ingredients_name` (`name`),
   UNIQUE KEY `uq_ingredients_fdc_id` (`fdc_id`),
   KEY `idx_ingredients_category` (`category`)
-) ENGINE=InnoDB AUTO_INCREMENT=1056 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=1056 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -46,7 +47,7 @@ CREATE TABLE `interactions` (
   KEY `idx_interactions_recipe_type` (`recipe_id`,`type`),
   CONSTRAINT `fk_interactions_recipe` FOREIGN KEY (`recipe_id`) REFERENCES `recipes` (`recipe_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_interactions_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=100006 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=100006 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -130,7 +131,7 @@ CREATE TABLE `recipes` (
   KEY `idx_recipes_title` (`title`(191)),
   KEY `fk_recipes_created_by` (`created_by`),
   CONSTRAINT `fk_recipes_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=10001 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=10001 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -145,7 +146,7 @@ CREATE TABLE `shopping_list_items` (
   KEY `idx_shopping_list_items_ingredient` (`ingredient_id`),
   CONSTRAINT `fk_shopping_list_items_ingredient` FOREIGN KEY (`ingredient_id`) REFERENCES `ingredients` (`ingredient_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_shopping_list_items_list` FOREIGN KEY (`list_id`) REFERENCES `shopping_lists` (`list_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=45004 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=45004 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -157,7 +158,7 @@ CREATE TABLE `shopping_lists` (
   PRIMARY KEY (`list_id`),
   KEY `idx_shopping_lists_user` (`user_id`),
   CONSTRAINT `fk_shopping_lists_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=15002 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15002 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -169,7 +170,7 @@ CREATE TABLE `tags` (
   PRIMARY KEY (`tag_id`),
   UNIQUE KEY `uq_tags_name` (`tag_name`),
   KEY `idx_tags_type` (`tag_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=202 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=202 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -177,10 +178,14 @@ CREATE TABLE `users` (
   `user_id` int unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(80) COLLATE utf8mb4_unicode_ci NOT NULL,
   `email` varchar(254) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password_hash` varchar(60) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password_hash` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `reset_token` varchar(128) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `reset_expires` datetime DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_id`),
-  UNIQUE KEY `email` (`email`)
+  UNIQUE KEY `email` (`email`),
+  KEY `idx_users_reset_token` (`reset_token`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5014 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+SET FOREIGN_KEY_CHECKS=1;

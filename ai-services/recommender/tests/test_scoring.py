@@ -31,7 +31,10 @@ def test_diet_match_allergen_hard_filter():
 def test_diet_match_diet_type_tag():
     assert scoring.diet_match(["vegetarian"], ["paneer"], [], "vegetarian") == 1.0
     # whole-word check: 'vegetarian' must not match 'non-vegetarian'
-    assert scoring.diet_match(["non-vegetarian"], ["chicken"], [], "vegetarian") == 0.4
+    # Priority 2: conflicting diet tag → hard filter (0.0), not neutral
+    assert scoring.diet_match(["non-vegetarian"], ["chicken"], [], "vegetarian") == 0.0
+    # Recipe with no tags when diet_type is set → neutral (cannot verify)
+    assert scoring.diet_match([], ["chicken"], [], "vegetarian") == 0.4
 
 
 def test_nutrition_match_targets_per_meal():

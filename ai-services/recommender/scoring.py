@@ -51,47 +51,32 @@ def clamp01(x):
 def pantry_match(ingredient_names, pantry_names):
     """Fraction of recipe ingredients already in the pantry (§20).
 
-    Phase 3.1: both sides are canonicalised (preprocessing.canonical_ingredient)
-    and deduped first, so 'Tomatoes' vs 'tomato', 'Garbanzo' vs 'chickpea' and
-    repeated ingredient rows can no longer inflate or deflate the score.
+    Phase 3.3: uses IngredientMatcher. Returns required_available / total_required.
     Empty recipe or empty pantry → 0.0 (cold start falls back to diet/popularity).
     """
-    from preprocessing import canonical_ingredient
+    from preprocessing import IngredientMatcher
 
-    recipe = []
-    seen_recipe = set()
-    for name in ingredient_names or []:
-        key = canonical_ingredient(name)
-        if key and key not in seen_recipe:
-            seen_recipe.add(key)
-            recipe.append(key)
-    if not recipe:
-        return 0.0
-    have = set()
-    for p in pantry_names or []:
-        key = canonical_ingredient(p)
-        if key:
-            have.add(key)
-    if not have:
-        return 0.0
-    hits = 0
-    for key in recipe:
-        if key in have:
-            hits += 1
-            continue
-        # Legacy dataset-id tolerance: prefix overlap on canonical tokens.
-        if any(key.startswith(h) or h.startswith(key) for h in have):
-            hits += 1
-    return hits / len(recipe)
+    matcher = IngredientMatcher(ingredient_names, pantry_names)
+    result = matcher.match()
+    return result['match_percent']
 
 
 def diet_match(recipe_tags, ingredient_names, banned_terms, diet_type):
-    """0 = allergen/restriction clash, 1 = fits (§8-9, §21)."""
+    """0 = allergen/restriction clash (hard filter), 1 = fits, 0.4 = neutral.
+
+    Hard filter semantics: a return of 0.0 means the recipe must be excluded
+    entirely (§8-9, §21). Callers must treat 0.0 as a hard exclusion, not as
+    a low score that can be overcome by other components.
+
+    Missing/unknown diet_type → neutral 1.0 (no restriction to enforce).
+    Recipe with no tags when a diet_type is set → neutral 0.4 (cannot verify).
+    Recipe with tags that conflict with required diet → 0.0 hard filter.
+    """
     text = " ".join(str(t).lower() for t in (recipe_tags or [])) + " " + \
            " ".join(str(i).lower() for i in (ingredient_names or []))
     banned = [str(b).strip().lower() for b in (banned_terms or []) if str(b).strip()]
     if any(term and term in text for term in banned):
-        return 0.0
+        return 0.0  # hard filter — caller must exclude
     if diet_type and str(diet_type).strip().lower() not in ("none", "any", ""):
         wanted = str(diet_type).strip().lower()
         tags = " ".join(str(t).lower() for t in (recipe_tags or []))
@@ -100,8 +85,11 @@ def diet_match(recipe_tags, ingredient_names, banned_terms, diet_type):
         negated = f"non-{wanted}" in tags or f"non {wanted}" in tags
         if not negated and re.search(rf"\b{re.escape(wanted)}\b", tags):
             return 1.0
-        return 0.4  # no explicit tag — neutral, don't punish hard
+        if not recipe_tags:
+            return 0.4  # cannot verify compliance → neutral
+        return 0.0  # hard filter: declared tags conflict with required diet
     return 1.0
+
 
 
 def nutrition_match(recipe_calories, calorie_goal):

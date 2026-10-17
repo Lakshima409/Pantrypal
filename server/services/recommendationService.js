@@ -4,7 +4,13 @@
 //
 // Contract (blueprint §25):
 //   POST /recommend  { user_id, limit, pantry[], preferences{...} }
-//   200 { recommendations: [{ recipe_id, score, pantry_match, diet_match }] }
+//   200 { recommendations: [{ recipe_id, score, pantry_match, diet_match,
+//     pantry_ingredients_met, pantry_ingredients_remaining,
+//     ingredient_match_percent, pantry_total_required,
+//     pantry_optional_available, pantry_optional_missing }] }
+//   Node passes these through as pantryIngredientsMet,
+//   pantryIngredientsRemaining, ingredientMatchPercent, pantryTotalRequired,
+//   pantryOptionalAvailable, pantryOptionalMissing (all optional).
 //   — legacy { recipe_ids: [...] } is still accepted.
 const Recipe = require("../models/Recipe");
 const PantryItem = require("../models/PantryItem");
@@ -220,6 +226,32 @@ async function getRecommended(userId, limit = 12) {
               entry && entry.diet_match !== undefined && entry.diet_match !== null
                 ? round3(entry.diet_match)
                 : dietaryMatch(recipe, prefs),
+            // Priority 3: ingredient-level breakdown passed through when the
+            // AI service provides it (additive — DB fallback paths omit it).
+            pantryIngredientsMet:
+              entry && entry.pantry_ingredients_met !== undefined && entry.pantry_ingredients_met !== null
+                ? entry.pantry_ingredients_met
+                : undefined,
+            pantryIngredientsRemaining:
+              entry && Array.isArray(entry.pantry_ingredients_remaining)
+                ? entry.pantry_ingredients_remaining
+                : [],
+            ingredientMatchPercent:
+              entry && entry.ingredient_match_percent !== undefined && entry.ingredient_match_percent !== null
+                ? round3(entry.ingredient_match_percent)
+                : undefined,
+            pantryTotalRequired:
+              entry && entry.pantry_total_required !== undefined && entry.pantry_total_required !== null
+                ? entry.pantry_total_required
+                : undefined,
+            pantryOptionalAvailable:
+              entry && entry.pantry_optional_available !== undefined && entry.pantry_optional_available !== null
+                ? entry.pantry_optional_available
+                : undefined,
+            pantryOptionalMissing:
+              entry && Array.isArray(entry.pantry_optional_missing)
+                ? entry.pantry_optional_missing
+                : [],
           };
         });
       if (ordered.length) return ordered.slice(0, limit);
