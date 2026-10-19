@@ -1,0 +1,45 @@
+{
+  "n_eval_users": 100,
+  "n_train_interactions": 5600,
+  "n_test_interactions": 1600,
+  "total_recipes": 3000,
+  "weights": {
+    "content": 0.4,
+    "pantry": 0.2,
+    "dietary": 0.15,
+    "nutrition": 0.1,
+    "preference": 0.1,
+    "expiry": 0.03,
+    "collaborative": 0.02
+  },
+  "hybrid": {
+    "precision@5": 0.008,
+    "recall@5": 0.003497326203208556,
+    "ndcg@5": 0.0055109279209288545,
+    "precision@10": 0.006000000000000001,
+    "recall@10": 0.0064139928698752225,
+    "ndcg@10": 0.006176991176483189,
+    "catalog_coverage": 0.15333333333333332,
+    "diversity": 0.9849665285217399
+  },
+  "baseline_popular": {
+    "precision@5": 0.0,
+    "recall@5": 0.0,
+    "ndcg@5": 0.0,
+    "precision@10": 0.002,
+    "recall@10": 0.0016666666666666668,
+    "ndcg@10": 0.0010159467610122582,
+    "catalog_coverage": 0.005,
+    "diversity": 0.19244183426000105
+  },
+  "baseline_content": {
+    "precision@5": 0.0,
+    "recall@5": 0.0,
+    "ndcg@5": 0.0,
+    "precision@10": 0.002,
+    "recall@10": 0.002361111111111111,
+    "ndcg@10": 0.001298914939898309,
+    "catalog_coverage": 0.198,
+    "diversity": 0.9894947410117687
+  }
+}

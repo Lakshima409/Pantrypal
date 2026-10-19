@@ -16,15 +16,36 @@ const toList = (value) =>
     .map((s) => s.trim())
     .filter(Boolean);
 
-// ✅ GET /api/recipes/recommended — hybrid AI recommender with DB fallback.
+// GET /api/recipes/recommended?pantry=a,b&preferences={"dietType":"vegan"}&limit=12
+// Query inputs are honoured first, then the stored user context — so pantry
+// chips typed on the search page actually change the result set instead of
+// silently returning the same popularity list for every input.
 exports.getRecommended = async (req, res, next) => {
   try {
-    const recipes = await recommendationService.getRecommended(req.user && req.user.id, 12);
+    const recipes = await recommendationService.getRecommended(
+      req.user && req.user.id,
+      Number(req.query.limit) || 12,
+      {
+        pantry: toList(req.query.pantry),
+        preferences: parsePreferences(req.query.preferences),
+      }
+    );
     res.json(recipes);
   } catch (err) {
     next(err);
   }
 };
+
+function parsePreferences(raw) {
+  if (!raw) return undefined;
+  if (typeof raw === "object") return raw;
+  try {
+    const parsed = JSON.parse(String(raw));
+    return parsed && typeof parsed === "object" ? parsed : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 // ✅ GET /api/recipes/trending
 exports.getTrending = async (req, res, next) => {

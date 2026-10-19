@@ -18,12 +18,46 @@ const { cleanName, formatQty, joinList } = require("./ingredientName");
 const FILLER_MARKERS = [
   "heat oil and cook the main ingredient",
   "season, simmer or stir until tender",
+  // Current dev-corpus templates (dev-corpus.sql / generate-dev-corpus.js).
+  "prepare all ingredients for",
+  "cook over medium heat, seasoning to taste",
+  "serve immediately and enjoy",
 ];
 
 function isFiller(steps) {
   const text = (Array.isArray(steps) ? steps.join(" ") : String(steps || "")).toLowerCase();
   if (!text) return false;
   return FILLER_MARKERS.some((m) => text.includes(m));
+}
+
+/**
+ * Normalise any stored instruction shape into a clean list of steps.
+ * The dev corpus stores a JSON array *as a string*, e.g.
+ *   "[\"Prep...\",\"Cook...\",\"Serve...\"]"
+ * which naive newline-splitting turns into one unreadable blob — that is
+ * exactly what made the recipe page show no usable instructions.
+ * @returns {string[]} trimmed, non-empty steps
+ */
+function parseInstructionSteps(raw) {
+  if (!raw) return [];
+  if (Array.isArray(raw)) {
+    return raw.map((s) => String(s).trim()).filter(Boolean);
+  }
+  const text = String(raw).trim();
+  if (!text) return [];
+  // JSON array or JSON-encoded string → decode first.
+  if (text.startsWith("[")) {
+    try {
+      const parsed = JSON.parse(text);
+      if (Array.isArray(parsed)) {
+        return parsed.map((s) => String(s).trim()).filter(Boolean);
+      }
+      if (typeof parsed === "string") return parseInstructionSteps(parsed);
+    } catch {
+      /* not valid JSON — fall through to newline split */
+    }
+  }
+  return text.split(/\r?\n+/).map((s) => s.trim()).filter(Boolean);
 }
 
 // Cooking-verb hints keyed off common tags/title words so steps read sensibly.
@@ -123,12 +157,10 @@ function buildOffline(recipe) {
  * @returns {string[]}
  */
 function generateInstructions(recipe) {
-  if (recipe && !isFiller(recipe.instructions)) {
-    const stored = Array.isArray(recipe.instructions)
-      ? recipe.instructions
-      : String(recipe.instructions || "").split(/\r?\n+/).map((s) => s.trim()).filter(Boolean);
-    if (stored.length) return stored.map(String);
-  }
+  const stored = parseInstructionSteps(recipe && recipe.instructions);
+  // Real, non-filler steps win; anything templated falls through to the
+  // per-recipe offline generator.
+  if (stored.length && !isFiller(stored)) return stored;
   return buildOffline(recipe || {});
 }
 

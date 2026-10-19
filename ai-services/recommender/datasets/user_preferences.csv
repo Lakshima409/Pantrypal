@@ -1,0 +1,101 @@
+user_id,preferred_cuisines,preferred_meals,preferred_diet,preferred_other
+1,indian|turkish,breakfast,halal,gourmet|summer
+2,peruvian|korean|mediterranean,dessert|snack,kosher|vegan,
+3,thai|argentine|chinese,snack|lunch,vegetarian|high-protein,
+4,greek,dinner,keto,mild|street food
+5,japanese|american,dinner|dessert,high-protein,spicy
+6,mexican|middle-eastern,lunch|dinner|dessert,vegetarian,meal-prep
+7,spanish|french,snack|dessert,,
+8,moroccan|italian|vietnamese,snack|dinner,,
+9,brazilian,dinner,,street food|baked
+10,lebanese,snack|lunch|breakfast,vegan,one-pot|baked
+11,vietnamese|moroccan,breakfast,,spicy|summer
+12,brazilian|indian|argentine,breakfast|lunch|dessert,,one-pot|gourmet
+13,turkish|french,dessert,paleo,summer
+14,indian|turkish,snack|dinner|lunch,low-carb|vegan,
+15,lebanese|american|japanese,dessert,dairy-free|paleo,summer|spicy
+16,argentine,breakfast,kosher|halal,street food|quick
+17,turkish|vietnamese,lunch,,meal-prep
+18,korean|lebanese|american,lunch|snack|dinner,,winter
+19,korean|greek|turkish,snack|dinner|lunch,kosher,street food
+20,japanese|moroccan|korean,dessert|snack|dinner,,gourmet
+21,mexican|indian,dessert|snack|lunch,high-protein,mild|summer
+22,moroccan|vietnamese,snack|dessert|lunch,,
+23,french,breakfast|dessert|dinner,keto,grilled
+24,middle-eastern|mexican,dessert|snack,keto|kosher,family-style
+25,middle-eastern|greek,snack,,
+26,american|brazilian,dessert|lunch,,holiday
+27,french|chinese|vietnamese,snack|lunch,high-protein,mild|comfort food
+28,peruvian|mexican,dinner|snack,paleo,
+29,lebanese,dessert|breakfast|lunch,,quick
+30,turkish|korean,lunch|breakfast|snack,keto|kosher,
+31,moroccan|thai,lunch,high-protein,one-pot
+32,chinese|brazilian|greek,dinner|snack|breakfast,paleo,
+33,moroccan|middle-eastern,dessert|breakfast,vegetarian|paleo,comfort food
+34,argentine,breakfast|lunch|dessert,high-protein|keto,
+35,vietnamese,dinner|dessert,kosher|dairy-free,spicy
+36,peruvian,breakfast|dessert,,one-pot
+37,mediterranean,snack,keto,mild|gourmet
+38,greek,breakfast|dessert|snack,,
+39,argentine,snack|dinner,paleo,
+40,korean|moroccan|american,snack|dinner,gluten-free,
+41,lebanese|thai,dinner|dessert,vegan|gluten-free,quick|one-pot
+42,vietnamese,snack|breakfast|dessert,,spicy|gourmet
+43,korean,dinner|breakfast|dessert,,
+44,brazilian|french,breakfast|dinner|lunch,gluten-free,
+45,turkish|greek,snack|lunch|dinner,,quick|winter
+46,brazilian,breakfast|dinner,kosher|vegan,quick|winter
+47,mediterranean,lunch,,spicy|holiday
+48,mexican,lunch|dinner|dessert,dairy-free|paleo,comfort food
+49,turkish|chinese,dessert|snack,paleo|keto,winter
+50,indian|vietnamese,dinner,,winter|gourmet
+51,lebanese,lunch,paleo|kosher,
+52,greek|american|indian,breakfast,,winter|grilled
+53,middle-eastern|moroccan,snack|dinner|breakfast,dairy-free|kosher,spicy|street food
+54,indian|italian,lunch|dinner,halal|vegetarian,baked
+55,argentine|chinese,snack|lunch,vegetarian,
+56,brazilian|greek,breakfast|snack|lunch,dairy-free,winter
+57,american,dessert|dinner|breakfast,,
+58,argentine|spanish,dinner|snack|dessert,paleo|kosher,
+59,brazilian|japanese|greek,dinner|lunch,,
+60,spanish|lebanese|korean,snack|dinner,halal|dairy-free,
+61,italian|thai|lebanese,dinner,,summer
+62,spanish|turkish,dinner,keto,mild|family-style
+63,peruvian,breakfast|snack|lunch,dairy-free|high-protein,winter|quick
+64,american|moroccan|indian,lunch|dessert|snack,,family-style
+65,argentine|greek|peruvian,lunch|snack,,
+66,thai|japanese,snack|dessert|lunch,,spicy|gourmet
+67,brazilian|thai|greek,breakfast,,summer|one-pot
+68,indian|middle-eastern|korean,dinner|lunch|dessert,,
+69,middle-eastern|indian,dessert|snack,halal,holiday|grilled
+70,brazilian|lebanese,dinner|dessert,,quick|baked
+71,greek,snack,dairy-free|kosher,family-style
+72,middle-eastern,dinner,,
+73,spanish,dessert|snack|lunch,,quick
+74,peruvian,breakfast|lunch,,spicy
+75,thai,dessert|snack,dairy-free|high-protein,
+76,brazilian|japanese,lunch|snack,vegan|high-protein,comfort food|holiday
+77,peruvian,snack|breakfast|dessert,gluten-free|low-carb,
+78,peruvian,breakfast|dessert|dinner,high-protein|vegetarian,family-style
+79,japanese|greek,dessert|dinner|snack,,gourmet
+80,indian|mexican|lebanese,breakfast,,winter|baked
+81,japanese,dinner|snack|breakfast,,meal-prep
+82,korean|mexican,snack|dinner,,family-style|holiday
+83,argentine|chinese|mexican,dinner|snack,,
+84,vietnamese|japanese,snack,vegetarian|keto,
+85,japanese,breakfast|dessert|dinner,kosher|keto,
+86,thai|spanish|mexican,breakfast|dinner|lunch,,
+87,middle-eastern,lunch|dessert,,mild|gourmet
+88,japanese|argentine|vietnamese,dessert,vegetarian,baked
+89,mexican,snack|dessert|dinner,gluten-free|kosher,family-style|baked
+90,italian|french|greek,dessert|snack,,family-style|quick
+91,italian|chinese,snack|dinner,,summer
+92,japanese|chinese,dessert|dinner,vegan,comfort food|winter
+93,mediterranean|french,snack,halal|low-carb,
+94,italian|korean|turkish,dessert|dinner,kosher|low-carb,summer|meal-prep
+95,french,dessert|breakfast,low-carb,winter
+96,greek|indian|middle-eastern,dessert|dinner,halal,mild
+97,french,breakfast,low-carb|vegan,winter|mild
+98,spanish|vietnamese,dessert,high-protein|halal,
+99,italian|japanese,snack|breakfast,,gourmet|one-pot
+100,argentine|chinese,dessert|breakfast|dinner,kosher,

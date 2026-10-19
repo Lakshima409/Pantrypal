@@ -156,12 +156,23 @@ function decorate(recipes, pantrySet, prefs) {
   });
 }
 
-async function contextFor(userId) {
+async function contextFor(userId, overrides = {}) {
   const [prefs, pantry] = await Promise.all([
     userId ? UserModel.getPreferences(userId).catch(() => ({})) : Promise.resolve({}),
     userId ? PantryItem.names(userId).catch(() => []) : Promise.resolve([]),
   ]);
-  return { prefs, pantry, pantrySet: new Set(pantry.map(norm)) };
+  // Request-scoped inputs win over stored context (never the reverse), so
+  // ad-hoc pantry chips / diet choices change the ranking instead of being
+  // silently ignored.
+  const reqPrefs =
+    overrides.preferences && typeof overrides.preferences === "object"
+      ? { ...prefs, ...overrides.preferences }
+      : prefs;
+  const reqPantry =
+    Array.isArray(overrides.pantry) && overrides.pantry.length
+      ? overrides.pantry.map((p) => (typeof p === "string" ? p : p && p.name)).filter(Boolean)
+      : pantry;
+  return { prefs: reqPrefs, pantry: reqPantry, pantrySet: new Set(reqPantry.map(norm)) };
 }
 
 // Pantry-overlap ordering used when Flask is offline.
@@ -182,7 +193,11 @@ async function pantryOverlapRecommendations(userId, limit, pantrySet, prefs) {
 
   const recipes = await Recipe.listByIds(rows.map((r) => r.recipe_id));
   const ranked = decorate(recipes, pantrySet, prefs).sort((a, b) => b.score - a.score);
-  const top = ranked.slice(0, limit);
+  // Respect stored/requested diet + allergy filters on the overlap path:
+  // drop allergen/diet clashes (diet_match 0), keep order, backfill.
+  const filtered = ranked.filter((r) => r.dietMatch !== 0);
+  const pool = filtered.length ? filtered : ranked;
+  const top = pool.slice(0, limit);
   if (top.length >= limit) return top;
 
   const fallback = decorate(await Recipe.recommendedFallback(limit), pantrySet, prefs);
@@ -198,9 +213,13 @@ function findAiEntry(recs, recipe) {
  * Returns shaped recipes for GET /api/recipes/recommended, each carrying
  * { score, pantryMatch, dietMatch }. Order: Flask hybrid → pantry overlap →
  * popularity — every path is decorated so the API contract stays stable.
+ * Request-scoped `overrides` ({ pantry?: string[], preferences?: object })
+ * take precedence over the stored user context, so ad-hoc inputs (e.g. the
+ * ingredient chips on the search page) change the ranking instead of being
+ * silently ignored.
  */
-async function getRecommended(userId, limit = 12) {
-  const { prefs, pantry, pantrySet } = await contextFor(userId);
+async function getRecommended(userId, limit = 12, overrides = {}) {
+  const { prefs, pantry, pantrySet } = await contextFor(userId, overrides);
 
   // 1) Flask hybrid model (§27: React → Node → Flask, never direct).
   try {

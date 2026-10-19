@@ -20,5 +20,22 @@ export default defineConfig({
             changeOrigin: false,
           },
         },
+        // Surface a clear 503 (and console hint) when the Node backend is
+        // not running, instead of an opaque 500 that looks like an app bug.
+        proxyErrorHandler: (err, req, res) => {
+          console.error(
+            `[vite proxy] ${req.method} ${req.url} -> backend unreachable (${err.code || err.message}). ` +
+              'Is the server running?  cd server && npm run dev'
+          );
+          if (res && !res.headersSent && typeof res.writeHead === 'function') {
+            res.writeHead(503, { 'Content-Type': 'application/json' });
+            res.end(
+              JSON.stringify({
+                message:
+                  'Backend API is not running on port 5000. Start it with: cd server && npm run dev',
+              })
+            );
+          }
+        },
       },
 })

@@ -1,0 +1,21 @@
+{
+  "mode": "preference",
+  "n_recipes": 3000,
+  "n_interactions": 8000,
+  "n_users": 100,
+  "seed": 20261017,
+  "exploration_rate": 0.3,
+  "match_boost": 3.0,
+  "train_ratio": 0.7,
+  "val_ratio": 0.1,
+  "test_ratio": 0.2,
+  "metric_definitions": {
+    "precision@k": "hits_in_top_k / k",
+    "recall@k": "hits_in_top_k / |relevant|",
+    "ndcg@k": "DCG@k / IDCG@k, graded relevance {viewed:1, saved:2, liked:3, cooked:4, rated:5}",
+    "catalog_coverage": "unique_recipes_recommended / catalog_size",
+    "diversity": "1 - mean_pairwise_jaccard_of_top_k_sets"
+  },
+  "relevance_definition": "positive types: saved, liked, cooked, rated (viewed=grade 1 for NDCG only)",
+  "note": "All data is synthetic. Preference-aware data validates controlled behaviour, not real-world performance."
+}

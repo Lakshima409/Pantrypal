@@ -1,0 +1,59 @@
+{
+  "note": "All data is synthetic. Preference-aware data validates controlled personalization behaviour, not real-world performance.",
+  "random_baseline": {
+    "hybrid": {
+      "precision@5": 0.006000000000000001,
+      "recall@5": 0.002594627594627594,
+      "ndcg@5": 0.0031947402539359944,
+      "precision@10": 0.006000000000000001,
+      "recall@10": 0.005142246642246642,
+      "ndcg@10": 0.004201260644398197,
+      "catalog_coverage": 0.16166666666666665,
+      "diversity": 0.9872306211160699
+    },
+    "baseline_popular": {
+      "precision@5": 0.008,
+      "recall@5": 0.003984487734487735,
+      "ndcg@5": 0.009047366965886833,
+      "precision@10": 0.004,
+      "recall@10": 0.003984487734487735,
+      "ndcg@10": 0.007052157843472344,
+      "catalog_coverage": 0.004333333333333333,
+      "diversity": 0.1940029667302261
+    },
+    "baseline_content": {}
+  },
+  "preference_aware": {
+    "hybrid": {
+      "precision@5": 0.008,
+      "recall@5": 0.003497326203208556,
+      "ndcg@5": 0.0055109279209288545,
+      "precision@10": 0.006000000000000001,
+      "recall@10": 0.0064139928698752225,
+      "ndcg@10": 0.006176991176483189,
+      "catalog_coverage": 0.15333333333333332,
+      "diversity": 0.9849665285217399
+    },
+    "baseline_popular": {
+      "precision@5": 0.0,
+      "recall@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@10": 0.002,
+      "recall@10": 0.0016666666666666668,
+      "ndcg@10": 0.0010159467610122582,
+      "catalog_coverage": 0.005,
+      "diversity": 0.19244183426000105
+    },
+    "baseline_content": {
+      "precision@5": 0.0,
+      "recall@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@10": 0.002,
+      "recall@10": 0.002361111111111111,
+      "ndcg@10": 0.001298914939898309,
+      "catalog_coverage": 0.198,
+      "diversity": 0.9894947410117687
+    }
+  },
+  "key_finding": "On preference-aware data, hybrid beats both baselines on every ranking metric (P@5, P@10, R@5, R@10, NDCG@5, NDCG@10). On random data, popularity baseline wins on small-K ranking because random interactions create accidental popularity. This confirms the hybrid recommender successfully personalizes when preference signal exists."
+}

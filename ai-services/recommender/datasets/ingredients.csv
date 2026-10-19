@@ -1,0 +1,201 @@
+ingredient_id,name,category,unit
+0,chicken breast,meat,g
+1,chicken thigh,meat,g
+2,ground beef,meat,g
+3,salmon fillet,seafood,g
+4,prawns,seafood,g
+5,paneer,dairy,g
+6,egg,dairy,piece
+7,cheddar cheese,dairy,g
+8,mozzarella,dairy,g
+9,greek yogurt,dairy,g
+10,butter,dairy,g
+11,milk,dairy,ml
+12,tofu,protein,g
+13,chickpeas,legume,g
+14,red lentils,legume,g
+15,black beans,legume,g
+16,white rice,grain,g
+17,basmati rice,grain,g
+18,spaghetti,grain,g
+19,noodles,grain,g
+20,tortilla,grain,piece
+21,bread,grain,slice
+22,rolled oats,grain,g
+23,onion,vegetable,g
+24,garlic,vegetable,clove
+25,ginger,vegetable,g
+26,tomato,vegetable,g
+27,cherry tomatoes,vegetable,g
+28,spinach,vegetable,g
+29,carrot,vegetable,g
+30,bell pepper,vegetable,g
+31,broccoli,vegetable,g
+32,cauliflower,vegetable,g
+33,mushrooms,vegetable,g
+34,potato,vegetable,g
+35,sweet potato,vegetable,g
+36,zucchini,vegetable,g
+37,cucumber,vegetable,g
+38,lettuce,vegetable,g
+39,green beans,vegetable,g
+40,peas,vegetable,g
+41,corn,vegetable,g
+42,avocado,fruit,g
+43,lemon,fruit,piece
+44,banana,fruit,piece
+45,apple,fruit,piece
+46,orange,fruit,piece
+47,strawberries,fruit,g
+48,blueberries,fruit,g
+49,mango,fruit,g
+50,pineapple,fruit,g
+51,coconut milk,dairy,ml
+52,cream,dairy,ml
+53,parmesan,dairy,g
+54,olive oil,oil,ml
+55,soy sauce,condiment,ml
+56,salsa,condiment,g
+57,balsamic vinegar,condiment,ml
+58,sesame seeds,spice,g
+59,cumin,spice,g
+60,paprika,spice,g
+61,turmeric,spice,g
+62,coriander,spice,g
+63,curry powder,spice,g
+64,chili flakes,spice,g
+65,basil,herb,g
+66,cilantro,herb,g
+67,parsley,herb,g
+68,mint,herb,g
+69,rosemary,herb,g
+70,thyme,herb,g
+71,honey,sweetener,ml
+72,maple syrup,sweetener,ml
+73,sugar,sweetener,g
+74,flour,grain,g
+75,pita bread,grain,piece
+76,tortilla chips,grain,g
+77,granola,grain,g
+78,chia seeds,seed,g
+79,almonds,nut,g
+80,walnuts,nut,g
+81,peanut butter,nut,g
+82,dates,fruit,g
+83,cocoa powder,spice,g
+84,dark chocolate,dairy,g
+85,goat cheese,dairy,g
+86,feta cheese,dairy,g
+87,ricotta,dairy,g
+88,coconut,fruit,g
+89,tahini,condiment,ml
+90,seaweed,vegetable,g
+91,miso paste,condiment,g
+92,green onion,vegetable,g
+93,dashi,condiment,ml
+94,tamari,condiment,ml
+95,rice vinegar,condiment,ml
+96,fish sauce,condiment,ml
+97,snap peas,vegetable,g
+98,edamame,legume,g
+99,bamboo shoots,vegetable,g
+100,water chestnuts,vegetable,g
+101,bok choy,vegetable,g
+102,napa cabbage,vegetable,g
+103,daikon,vegetable,g
+104,lotus root,vegetable,g
+105,shiitake mushrooms,vegetable,g
+106,enoki mushrooms,vegetable,g
+107,kale,vegetable,g
+108,arugula,vegetable,g
+109,romaine lettuce,vegetable,g
+110,iceberg lettuce,vegetable,g
+111,red onion,vegetable,g
+112,shallot,vegetable,g
+113,leek,vegetable,g
+114,celery,vegetable,g
+115,fennel,vegetable,g
+116,beet,vegetable,g
+117,turnip,vegetable,g
+118,parsnip,vegetable,g
+119,butternut squash,vegetable,g
+120,acorn squash,vegetable,g
+121,pumpkin,vegetable,g
+122,eggplant,vegetable,g
+123,okra,vegetable,g
+124,artichoke,vegetable,g
+125,asparagus,vegetable,g
+126,brussels sprouts,vegetable,g
+127,cabbage,vegetable,g
+128,kohlrabi,vegetable,g
+129,radish,vegetable,g
+130,jicama,vegetable,g
+131,plantain,fruit,g
+132,papaya,fruit,g
+133,kiwi,fruit,piece
+134,dragon fruit,fruit,piece
+135,passion fruit,fruit,piece
+136,guava,fruit,piece
+137,lychee,fruit,piece
+138,rambutan,fruit,piece
+139,durian,fruit,g
+140,jackfruit,fruit,g
+141,breadfruit,fruit,g
+142,cassava,vegetable,g
+143,yams,vegetable,g
+144,taro,vegetable,g
+145,quinoa,grain,g
+146,couscous,grain,g
+147,bulgur,grain,g
+148,farro,grain,g
+149,barley,grain,g
+150,millet,grain,g
+151,buckwheat,grain,g
+152,amaranth,grain,g
+153,teff,grain,g
+154,sorghum,grain,g
+155,rye,grain,g
+156,oat bran,grain,g
+157,wheat germ,grain,g
+158,linseed,seed,g
+159,pumpkin seeds,seed,g
+160,sunflower seeds,seed,g
+161,sesame,seed,g
+162,poppy seeds,seed,g
+163,hemp seeds,seed,g
+164,macadamia nuts,nut,g
+165,cashews,nut,g
+166,pecans,nut,g
+167,hazelnuts,nut,g
+168,pistachios,nut,g
+169,brazil nuts,nut,g
+170,pine nuts,nut,g
+171,coconut oil,oil,ml
+172,avocado oil,oil,ml
+173,sesame oil,oil,ml
+174,ghee,dairy,ml
+175,sour cream,dairy,ml
+176,creme fraiche,dairy,ml
+177,buttermilk,dairy,ml
+178,kefir,dairy,ml
+179,labneh,dairy,ml
+180,quark,dairy,ml
+181,mascarpone,dairy,ml
+182,ricotta salata,dairy,ml
+183,halloumi,dairy,ml
+184,feta,dairy,ml
+185,blue cheese,dairy,ml
+186,brie,dairy,ml
+187,camembert,dairy,ml
+188,gouda,dairy,ml
+189,emmental,dairy,ml
+190,gruyere,dairy,ml
+191,fontina,dairy,ml
+192,provolone,dairy,ml
+193,ricotta,dairy,ml
+194,burrata,dairy,ml
+195,mozzarella di bufala,dairy,ml
+196,pecorino,dairy,ml
+197,manchego,dairy,ml
+198,idiazabal,dairy,ml
+199,tzatziki,condiment,ml
