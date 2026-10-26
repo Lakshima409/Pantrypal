@@ -47,7 +47,8 @@ PantryPal/
 ├── database/
 │   ├── schema.sql           # users, pantry, recipes, nutrition, tags, …
 │   ├── migrations/          # diet_plan, reset tokens, expiry_date
-│   ├── seed.sql             # demo login: demo@pantrypal.local / Demo1234!
+│   ├── seed.sql             # no demo account by default
+│   ├── seed.dev.sql         # DEVELOPMENT-ONLY demo account; not for production
 │   └── dev-corpus.sql       # GENERATED dev corpus (see below)
 ├── docs/
 │   ├── BASELINE-REPORT.md   # Phase 1 baseline + test report
@@ -73,6 +74,8 @@ mysql -u root -p recipe_db --init-command="SET FOREIGN_KEY_CHECKS=0" < database/
 mysql -u root -p recipe_db < database/migrations/add_diet_plan.sql
 mysql -u root -p recipe_db < database/migrations/add_expiry_date.sql
 mysql -u root -p recipe_db < database/seed.sql
+# Optional local-development demo account only (never for production):
+mysql -u root -p recipe_db < database/seed.dev.sql
 # Development corpus — REQUIRED, otherwise the recommender will not boot and the
 # diet-planner tests fail. Synthetic fixture, safe to delete (see docs/BASELINE-REPORT.md).
 mysql -u root -p recipe_db < database/dev-corpus.sql
@@ -91,15 +94,15 @@ cd ../../client && npm install && npm run dev  # → http://localhost:5173
 ## Tests (blueprint §61)
 
 ```bash
-cd server            && npm test        # units: shopping math, auth/JWT  (19 tests)
-cd ai-services/recommender  && python -m pytest tests -q   # score components (8)
-cd ai-services/diet-planner && python -m pytest tests -q   # week plans, allergens (5)
+cd server            && npm test        # Node unit/integration tests (259 tests after Phase 1/2)
+cd ai-services/recommender  && python -m pytest tests -q   # 112 passed (verified with Python 3.12)
+cd ai-services/diet-planner && python -m pytest tests -q   # 10 passed (verified with Python 3.12)
 cd server && node journey-check.js      # live end-to-end user journeys (37 checks)
 cd client && npm run build              # React production build
 ```
 
-> **The suites need a populated `recipe_db`.** `seed.sql` creates structure and the
-> demo login only. On an empty database the recommender crashes on boot
+> **The suites need a populated `recipe_db`.** `seed.sql` no longer creates a demo account;
+> load `seed.dev.sql` only for local development. On an empty database the recommender crashes on boot
 > (`TfidfVectorizer: empty vocabulary`) and the diet-planner tests fail with
 > `min() iterable argument is empty`. Load `database/dev-corpus.sql` (generated,
 > deterministic, every row tagged `source_dataset='dev-corpus'`) to get a working

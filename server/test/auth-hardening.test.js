@@ -36,7 +36,7 @@ test("auth: missing token -> 401", () => {
 });
 
 test("auth: forged/tampered token -> 401 invalid", () => {
-  const secret = process.env.JWT_SECRET || "secret";
+  const secret = require("../utils/tokenUtils").JWT_SECRET;
   const good = jwt.sign({ userId: 1 }, secret, { expiresIn: "7d" });
   const bad = good.slice(0, -2) + "xx";
   const { res, passed } = run(requireAuth, mockReq({ headers: { authorization: `Bearer ${bad}` } }));
@@ -46,7 +46,7 @@ test("auth: forged/tampered token -> 401 invalid", () => {
 });
 
 test("auth: expired token -> 401 with expired flag", () => {
-  const secret = process.env.JWT_SECRET || "secret";
+  const secret = require("../utils/tokenUtils").JWT_SECRET;
   const expired = jwt.sign({ userId: 9 }, secret, { expiresIn: "-10s" });
   const { res, passed } = run(requireAuth, mockReq({ headers: { authorization: `Bearer ${expired}` } }));
   assert.strictEqual(passed, false);
@@ -55,7 +55,7 @@ test("auth: expired token -> 401 with expired flag", () => {
 });
 
 test("auth: valid token attaches req.user", () => {
-  const secret = process.env.JWT_SECRET || "secret";
+  const secret = require("../utils/tokenUtils").JWT_SECRET;
   const token = jwt.sign({ userId: 42 }, secret, { expiresIn: "7d" });
   const { passed, req } = run(requireAuth, mockReq({ headers: { authorization: `Bearer ${token}` } }));
   assert.strictEqual(passed, true);

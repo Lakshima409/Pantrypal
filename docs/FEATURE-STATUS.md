@@ -34,7 +34,7 @@ it has been load-tested or reviewed for production readiness.
 | OAuth / social login | Not implemented | No provider integration |
 | Role-based access (admin) | Not implemented | Listed as future work in the README |
 | Session refresh / revocation | Not implemented | Single 7-day JWT, no refresh or blocklist |
-| `JWT_SECRET` production guard | Partially implemented | Enforced in production per README §54, but the tests warn `JWT_SECRET not set` because they do not load dotenv (DEV-02) |
+| `JWT_SECRET` production guard | Implemented | Strict outside test mode; missing/weak/insecure secrets fail; tests use setup-env (259 passing) |
 
 **Client note:** `RegisterStep1/2/3` and `CompleteProfile` exist as pages but
 `app.jsx` routes `/register` to the single `Register` page. The multi-step route
@@ -143,8 +143,8 @@ entries are unreachable dead ends.
 | Node/Express REST API | Implemented | 6 route modules, `/api/health` |
 | MySQL 8 schema + migrations | Implemented | 15 tables; **`schema.sql` needs `FOREIGN_KEY_CHECKS=0`** (DEV-04) |
 | Docker Compose | Partially implemented | Authored per §66 but **never executed** on the dev machine |
-| Node unit tests | Implemented | 19 pass — auth/JWT, NLP search, shopping math |
-| Python unit tests | Implemented | 13 pass — scoring components, week plans, allergens |
+| Node unit tests | Implemented | 259 pass (verified `npm test`) — auth/JWT, NLP search, shopping math, security regressions |
+| Python unit tests | Implemented | 122 pass verified — recommender 112 (`py -3.12 -m pytest tests -q`), diet planner 10 (`py -3.12 -m pytest tests -q`) — scoring components, week plans, allergens |
 | End-to-end journey harness | Implemented | **Added in Phase 1** — `server/journey-check.js`, 37 checks |
 | Dev data corpus | Implemented | **Added in Phase 1** — deterministic, tagged `dev-corpus` (DEV-01 mitigation) |
 | Database backup | Implemented | `recipe_db-baseline-20261015-044844.sql`, verified restorable |

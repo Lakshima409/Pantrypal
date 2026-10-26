@@ -180,15 +180,19 @@ async function pantryOverlapRecommendations(userId, limit, pantrySet, prefs) {
   const pantryNames = [...pantrySet];
   if (!pantryNames.length) return decorate(await Recipe.recommendedFallback(limit), pantrySet, prefs);
 
+  const likeClauses = pantryNames.map(() => 'LOWER(i.name) LIKE ?').join(' OR ');
+  const likeParams = pantryNames.map(name => '%' + name.toLowerCase() + '%');
+
   const [rows] = await require("../config/db").query(
     `SELECT ri.recipe_id, COUNT(*) AS hits
      FROM recipe_ingredients ri
      JOIN ingredients i ON i.ingredient_id = ri.ingredient_id
-     WHERE LOWER(i.name) IN (?)
+     WHERE
+     ${likeClauses}
      GROUP BY ri.recipe_id
      ORDER BY hits DESC, ri.recipe_id
      LIMIT ?`,
-    [pantryNames, Math.max(limit * 3, 30)]
+    [...likeParams, Math.max(limit * 3, 30)]
   );
 
   const recipes = await Recipe.listByIds(rows.map((r) => r.recipe_id));

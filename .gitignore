@@ -26,3 +26,17 @@ __pycache__/
 .idea/
 Thumbs.db
 .DS_Store
+
+# Local-only UI screenshots (not for public repository)
+Pantry pal Interface ss/
+
+# Temporary local helper scripts and generated output
+/server/_verify_client.js
+/server/check_context.js
+/server/get_titles.ps1
+/server/test_endpoints.ps1
+/server/test_pantry.ps1
+/server/test_system.ps1
+/server/test_titles.ps1
+/server/test_titles.txt
+/server/titles.txt
